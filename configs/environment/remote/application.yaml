@@ -1,0 +1,9 @@
+mode: 'REMOTE'
+# uds: /var/run/linal.sock
+worker_class: 'uvicorn.workers.UvicornWorker'
+workers: 4
+routes_timeout: 60
+max_requests: 500
+log_path: /linal_logs/
+template_path: '/templates'
+
