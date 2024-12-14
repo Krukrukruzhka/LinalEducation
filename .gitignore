@@ -163,3 +163,5 @@ cython_debug/
 
 # Internal files
 nohup.out
+
+.idea
