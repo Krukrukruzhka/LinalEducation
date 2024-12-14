@@ -16,7 +16,7 @@ from src.utils.arguments_parsing import enrich_parser
 from src.datamodels.configs import ConfigDirStructure, Config
 
 
-LOG_LEVEL_NUMBER = logging.getLevelName(os.environ.get("LOG_LEVEL", "INFO"))
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
 MAX_SIZE_LOG_FILE = 20*1024*1024
 COUNT_LOG_FILES = 5
 
@@ -49,11 +49,11 @@ class GunicorLogger(Logger):
 
         self.error_logger = logging.getLogger("gunicorn.error")
         # self.error_logger.addHandler(handler)
-        self.error_logger.setLevel(LOG_LEVEL_NUMBER)
+        self.error_logger.setLevel(LOG_LEVEL)
 
         self.access_logger = logging.getLogger("gunicorn.access")
         # self.access_logger.addHandler(handler)
-        self.access_logger.setLevel(LOG_LEVEL_NUMBER)
+        self.access_logger.setLevel(LOG_LEVEL)
 
 
 class LoguruHandler(logging.Handler):
@@ -123,8 +123,7 @@ def start_app():
     args = create_parser()  # arguments from the bash script
 
     app_env = os.getenv("APPLICATION_ENV", None) or getattr(args, 'mode', None)
-
-    logging.root.setLevel(LOG_LEVEL_NUMBER)
+    logging.root.setLevel(LOG_LEVEL)
 
     if getattr(args, 'config_dir', None) is not None:
         config_dir = ConfigDirStructure(path=str(Path(args.config_dir).joinpath(app_env.lower())))
