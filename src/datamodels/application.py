@@ -12,6 +12,6 @@ class UISettings(BaseModel):
     templates: Jinja2Templates = None
 
 
-class ApplicationState(BaseModel):
-    app_config: Config = Field(default=Config(), required=False)
+class ApplicationSettings(BaseModel):
+    app_config: Config = Field(default=Config())
     ui: UISettings = Field(default=UISettings())

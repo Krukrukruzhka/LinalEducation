@@ -7,45 +7,36 @@ from fastapi.staticfiles import StaticFiles
 from functools import partial
 
 from app.router import unprotected_routers
-from src.datamodels.configs import Config, ConfigDirStructure
-from src.state.application import activate_application_state, deactivate_application_state
+from config.application import activate_application_settings, deactivate_application_settings
+from config.application import app_settings
+from src.utils.constants import LOCAL_ENV
 
 
 logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def lifespan_with_conf(_, app_config: Config, config_dir: ConfigDirStructure):
-    await activate_application_state(app_config, config_dir)
+async def lifespan_template(_, env_mode: str):
+    await activate_application_settings(env_mode=env_mode)
     yield
-    await deactivate_application_state()
-
-
-@asynccontextmanager
-async def empty_lifespan(_):
-    yield
+    await deactivate_application_settings()
 
 
 def create_app(
-    app_config: Config,
-    config_dir: ConfigDirStructure = None,
+    env_mode: str,
     **kwargs,
 ):
-    if config_dir:
-        lifespan = partial(lifespan_with_conf, app_config=app_config, config_dir=config_dir)
-    else:
-        lifespan = empty_lifespan
-        logger.warning("App created without config directory")
+    lifespan = partial(lifespan_template, env_mode=env_mode)
 
     app = FastAPI(
-        debug=app_config.mode,
+        debug=bool(env_mode == LOCAL_ENV),
         title='Linear Algebra',
         lifespan=lifespan,
         redirect_slashes=True,
         **kwargs,
     )
 
-    app.mount('/static', StaticFiles(directory=os.path.join(app_config.template_path, 'static')), 'static')
+    app.mount('/static', StaticFiles(directory=os.path.join(app_settings.app_config.template_path, 'static')), 'static')
 
     app.include_router(unprotected_routers)
 

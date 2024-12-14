@@ -6,8 +6,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Config(BaseSettings):
-    model_config = SettingsConfigDict(yaml_file="/Users/krukrukruzhka/config/config.yaml")
-
     host: str = Field(
         default=os.getenv("LINAL_HOST", "::"),
         description="Host to run on",
@@ -43,21 +41,6 @@ class Config(BaseSettings):
         description="FastAPI route timeout",
         json_schema_extra={"type": int}
     )
-    config_file: Optional[str] = Field(
-        default=None,
-        description="Config file",
-        json_schema_extra={"type": str, 'required': False},
-    )
-    # uds: Optional[str] = Field(
-    #     default=None,
-    #     description="Unix socket",
-    #     json_schema_extra={"type": str, 'required': False},
-    # )
-    config_dir: Optional[str] = Field(
-        default=None,
-        description="Config dir",
-        json_schema_extra={"type": str, 'required': False},
-    )
     max_requests: int = Field(
         default=100,
         description="The maximum number of requests a worker will process before restarting.",
@@ -73,8 +56,3 @@ class Config(BaseSettings):
         description="Path to templates dir",
         json_schema_extra={"type": str}
     )
-
-
-class ConfigDirStructure(BaseModel):
-    application: str = 'application.yaml'
-    path: str

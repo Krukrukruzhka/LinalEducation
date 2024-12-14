@@ -4,7 +4,7 @@ import logging.handlers
 import os
 import random
 import sys
-import yaml
+from logging import NullHandler
 
 import gunicorn.app.base as gap
 from gunicorn.glogging import Logger
@@ -13,7 +13,10 @@ from loguru import logger as loguru_logger
 
 from app.application import create_app
 from src.utils.arguments_parsing import enrich_parser
-from src.datamodels.configs import ConfigDirStructure, Config
+from src.datamodels.configs import Config
+from config.application import app_settings
+from src.utils.constants import LOCAL_ENV
+from config.app_config import init_app_config
 
 
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
@@ -45,14 +48,10 @@ class MainApp(gap.BaseApplication):
 
 class GunicorLogger(Logger):
     def setup(self, cfg):
-        handler = logging.NullHandler()  # disable gunicorn logging
-
         self.error_logger = logging.getLogger("gunicorn.error")
-        # self.error_logger.addHandler(handler)
-        self.error_logger.setLevel(LOG_LEVEL)
-
         self.access_logger = logging.getLogger("gunicorn.access")
-        # self.access_logger.addHandler(handler)
+
+        self.error_logger.setLevel(LOG_LEVEL)
         self.access_logger.setLevel(LOG_LEVEL)
 
 
@@ -75,20 +74,17 @@ class LoguruHandler(logging.Handler):
         )
 
 
-def configurate_loggers(log_dir: str):
-    """_summary_
-
-    Args:
-        log_dir (str): path to directory with log files
-
-    Logs can be sending to terminal and machine
-    """
-
-    terminal_common_handler = LoguruHandler()
-
-    Path(log_dir).mkdir(parents=True, exist_ok=True)
-    file_common_handler = logging.handlers.RotatingFileHandler(filename=os.path.join(log_dir, "log.log"), maxBytes=MAX_SIZE_LOG_FILE, backupCount=COUNT_LOG_FILES)
-    file_exception_handler = logging.handlers.RotatingFileHandler(filename=os.path.join(log_dir, "exceptions.log"), maxBytes=MAX_SIZE_LOG_FILE, backupCount=COUNT_LOG_FILES)
+def configurate_loggers(env_mode: str):
+    if env_mode == LOCAL_ENV:
+        terminal_common_handler = LoguruHandler()
+        file_common_handler = NullHandler()
+        file_exception_handler = NullHandler()
+    else:
+        terminal_common_handler = NullHandler()
+        log_dir = app_settings.app_config.log_path
+        Path(log_dir).mkdir(parents=True, exist_ok=True)
+        file_common_handler = logging.handlers.RotatingFileHandler(filename=os.path.join(log_dir, "log.log"), maxBytes=MAX_SIZE_LOG_FILE, backupCount=COUNT_LOG_FILES)
+        file_exception_handler = logging.handlers.RotatingFileHandler(filename=os.path.join(log_dir, "exceptions.log"), maxBytes=MAX_SIZE_LOG_FILE, backupCount=COUNT_LOG_FILES)
 
     working_loggers = [
         *logging.root.manager.loggerDict.keys(),
@@ -122,25 +118,17 @@ def create_parser():
 def start_app():
     args = create_parser()  # arguments from the bash script
 
-    app_env = os.getenv("APPLICATION_ENV", None) or getattr(args, 'mode', None)
+    env_mode = os.getenv("APPLICATION_ENV", None) or getattr(args, 'mode', None)
     logging.root.setLevel(LOG_LEVEL)
 
-    if getattr(args, 'config_dir', None) is not None:
-        config_dir = ConfigDirStructure(path=str(Path(args.config_dir).joinpath(app_env.lower())))
-        app_config = Config(**yaml.safe_load(Path(config_dir.path).joinpath(config_dir.application).read_text()))
-    else:
-        logger.debug("conf_dir is None")
-        config_dir = None
-        app_config = Config(vars(args))
+    init_app_config(env_mode=env_mode, app_config=app_settings.app_config)
 
-    configurate_loggers(log_dir=app_config.log_path)
+    configurate_loggers(env_mode=env_mode)
     logger.debug(f"Using args: {args}")
 
-    app = create_app(
-        app_config=app_config,
-        config_dir=config_dir
-    )
+    app = create_app(env_mode=env_mode)
 
+    app_config = app_settings.app_config
     bind = f"{app_config.host}:{app_config.port}" if not getattr(app_config, 'uds', None) else f"unix://{app_config.uds}"
     logger.info(f"Starting server on {bind} in mode {app_config.mode}")
 

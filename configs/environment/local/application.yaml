@@ -1,8 +1,0 @@
-mode: 'LOCAL'
-worker_class: 'uvicorn.workers.UvicornWorker'
-workers: 1
-max_requests: 500
-host: '127.0.0.1'
-port: 8001
-log_path: '/Users/krukrukruzhka/linal_logs/'
-template_path: '/Users/krukrukruzhka/LinalEducation/templates'

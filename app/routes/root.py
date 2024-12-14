@@ -2,16 +2,16 @@ import logging
 
 from fastapi import APIRouter, Request
 
-from src.state.application import app_state
+from config.application import app_settings
 
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-templates = app_state.ui.templates
 
 
 @router.get("/")
 async def get_home_page(request: Request):
+    templates = app_settings.ui.templates
     web_context = {
         "request": request
     }
