@@ -1,0 +1,53 @@
+.main_page {
+/*    background-color: #DCC1BB; */
+    min-height: 90vh;
+}
+
+.lab_step_block {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.5vw;
+
+    border-bottom: solid;
+}
+
+.lab_step_content {
+
+    display: flex;
+    flex-direction: row;
+    gap: 4vw;
+}
+
+
+#lab1_C_condition {
+    display: flex;
+    align-items: center;
+}
+
+
+.check_block {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    gap: 30px;
+}
+
+.check_button {
+    width: 200px;
+    height: 40px;
+
+    font-size: 17px;
+}
+
+.verdict_block {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.verdict_text {
+    font-size: 17px;
+}

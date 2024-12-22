@@ -1,0 +1,43 @@
+.matrix_with_name {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+
+    margin-top: 1.5vw;
+    margin-bottom: 1.5vw;
+
+/*    background-color: yellow; */
+}
+
+.matrix_name {
+    font-size: 1.2vw;
+    margin-right: 10px;
+}
+
+.matrix_name sup {
+    font-size: 70%;
+}
+
+.matrix_name sub {
+    font-size: 70%;
+}
+
+.non_editable_matrix input {
+    pointer-events: none;
+}
+
+.non_editable_matrix input {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.matrix_element {
+    width: 2.5vw;
+    height: 2.5vw;
+    text-align: center;
+}
+
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}

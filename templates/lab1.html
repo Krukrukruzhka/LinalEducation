@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{url_for('static', path='css/matrix.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', path='css/content_blocks.css')}}">
+
+    <script src="{{url_for('static', path='js/lab1.js')}}"></script>
+
+    <title>Linear algebra</title>
+</head>
+
+<body>
+    <main class="main_page">
+        <div class="lab_step_block">
+            <div class="lab_step_content">
+                <div class="text_block">
+                    <h2>Задача 1</h2>
+                    <p>Даны матрицы <i>А</i> и <i>B</i>, а также выражение матрицы <i>C</i> через <i>A</i> и <i>B</i>. Вычислить матрицу <i>C</i>.</p>
+                </div>
+            </div>
+            <div class="lab_step_content">
+                <div class="matrix_with_name">
+                    <span class="matrix_name">A = </span>
+                    <div class="matrix non_editable_matrix">
+                        {% for row in A %}
+                        <div class="matrix_row">
+                            {% for element in row %}
+                                <input type="number" class="matrix_element" value={{element}} />
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="matrix_with_name">
+                    <span class="matrix_name">B =</span>
+                    <div class="matrix non_editable_matrix">
+                        {% for row in B %}
+                        <div class="matrix_row">
+                            {% for element in row %}
+                                <input type="number" class="matrix_element" value={{element}} />
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="text_block" id="lab1_C_condition">
+                    <p>C = {{alpha}} * A * B {% if beta >= 0 %} + {{beta}} {% else %} - {{ -beta }} {% endif %} * B<sup>T</sup> * A<sup>T</sup></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="lab_step_block">
+            <div class="lab_step_content">  
+                <div class="text_block">
+                    <h2>Шаг 1</h2>
+                </div>
+            </div>
+            <div class="lab_step_content">
+                <div class="matrix_with_name">
+                    <span class="matrix_name">A * B = </span>
+                    <div class="matrix editable_matrix">
+                        {% for row in range(2) %}
+                        <div class="matrix_row">
+                            {% for element in range(2) %}
+                                <input type="number" class="matrix_element"/>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lab_step_block">
+            <div class="lab_step_content">
+                <div class="text_block">
+                    <h2>Шаг 2</h2>
+                </div>
+            </div>
+            <div class="lab_step_content">
+                <div class="matrix_with_name">
+                    <span class="matrix_name">{{alpha}} * A * B = </span>
+                    <div class="matrix editable_matrix">
+                        {% for row in range(2) %}
+                        <div class="matrix_row">
+                            {% for element in range(2) %}
+                                <input type="number" class="matrix_element"/>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lab_step_block">
+            <div class="lab_step_content">
+                <div class="text_block">
+                    <h2>Шаг 3</h2>
+                </div>
+            </div>
+            <div class="lab_step_content">
+                <div class="matrix_with_name">
+                    <span class="matrix_name">A<sup>T</sup> = </span>
+                    <div class="matrix editable_matrix">
+                        {% for row in range(3) %}
+                        <div class="matrix_row">
+                            {% for element in range(2) %}
+                                <input type="number" class="matrix_element"/>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lab_step_block">
+            <div class="lab_step_content">
+                <div class="text_block">
+                    <h2>Шаг 4</h2>
+                </div>
+            </div>
+            <div class="lab_step_content">
+                <div class="matrix_with_name">
+                    <span class="matrix_name">B<sup>T</sup> = </span>
+                    <div class="matrix editable_matrix">
+                        {% for row in range(2) %}
+                        <div class="matrix_row">
+                            {% for element in range(3) %}
+                                <input type="number" class="matrix_element"/>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lab_step_block">
+            <div class="lab_step_content">
+                <div class="text_block">
+                    <h2>Шаг 5</h2>
+                </div>
+            </div>
+            <div class="lab_step_content">
+                <div class="matrix_with_name">
+                    <span class="matrix_name">B<sup>T</sup> * A<sup>T</sup> = </span>
+                    <div class="matrix editable_matrix">
+                        {% for row in range(2) %}
+                        <div class="matrix_row">
+                            {% for element in range(2) %}
+                                <input type="number" class="matrix_element"/>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lab_step_block">
+            <div class="lab_step_content">
+                <div class="text_block">
+                    <h2>Шаг 6</h2>
+                </div>
+            </div>
+            <div class="lab_step_content">
+                <div class="matrix_with_name">
+                    <span class="matrix_name">{{beta}} * B<sup>T</sup> * A<sup>T</sup> = </span>
+                    <div class="matrix editable_matrix">
+                        {% for row in range(2) %}
+                        <div class="matrix_row">
+                            {% for element in range(2) %}
+                                <input type="number" class="matrix_element"/>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lab_step_block">
+            <div class="lab_step_content">
+                <div class="text_block">
+                    <h2>Шаг 7 (результат)</h2>
+                </div>
+            </div>
+            <div class="lab_step_content">
+                <div class="matrix_with_name">
+                    <span class="matrix_name">{{alpha}} * A * B {% if beta >= 0 %} + {{beta}} {% else %} - {{ -beta }} {% endif %} * B<sup>T</sup> * A<sup>T</sup> = </span>
+                    <div class="matrix editable_matrix">
+                        {% for row in range(2) %}
+                        <div class="matrix_row">
+                            {% for element in range(2) %}
+                                <input type="number" class="matrix_element"/>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="check_block">
+            <button type="button" class="check_button" onclick="check_request()">Проверить</button>
+            <div class="verdict_block" id="user_verdict_block" hidden="hidden">
+                <img class="verdict_image">
+                <p class="verdict_text"></p>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
