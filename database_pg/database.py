@@ -58,12 +58,22 @@ class Database:
                 await conn.execute(sql_query)
 
                 sql_query = ''' 
-                    CREATE TABLE IF NOT EXISTS teachers (
+                    CREATE TABLE IF NOT EXISTS users (
                         id SERIAL PRIMARY KEY,
                         name TEXT NOT NULL,
+                        login TEXT NOT NULL,
+                        password TEXT NOT NULL,
+                        role_id INTEGER NOT NULL REFERENCES roles(id)
+                    );
+                    '''  # create table of users
+                await conn.execute(sql_query)
+
+                sql_query = ''' 
+                    CREATE TABLE IF NOT EXISTS teachers (
+                        id SERIAL PRIMARY KEY,
                         email TEXT,
                         phone TEXT,
-                        role_id INTEGER NOT NULL REFERENCES roles(id)
+                        user_id INTEGER NOT NULL REFERENCES users(id)
                     );
                     '''  # create table of teachers
                 await conn.execute(sql_query)
@@ -80,9 +90,8 @@ class Database:
                 sql_query = ''' 
                     CREATE TABLE IF NOT EXISTS students (
                         id SERIAL PRIMARY KEY,
-                        name TEXT NOT NULL,
                         group_id INTEGER NOT NULL REFERENCES groups(id),
-                        role_id INTEGER NOT NULL REFERENCES roles(id)
+                        user_id INTEGER NOT NULL REFERENCES users(id)
                     );
                     '''  # create table of students
                 await conn.execute(sql_query)
@@ -105,7 +114,7 @@ class Database:
 async def main():
     db = Database()
     await db.create_pool()
-    await db.get_all_tables()
+    await db.create_all_tables()
 
 if __name__ == "__main__":
     asyncio.run(main())
