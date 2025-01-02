@@ -6,10 +6,10 @@ from config.application import app_settings
 
 
 logger = logging.getLogger(__name__)
-router = APIRouter()
+router = APIRouter(tags=["html"])
 
 
-@router.get("/")
+@router.get("/", tags=["unprotected"])
 async def get_home_page(request: Request):
     templates = app_settings.ui.templates
     web_context = {

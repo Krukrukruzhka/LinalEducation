@@ -7,7 +7,7 @@ from app.routes import (
 )
 
 
-unprotected_routers = APIRouter()
-unprotected_routers.include_router(root.router)
-unprotected_routers.include_router(auth.router)
-unprotected_routers.include_router(lab1.router)
+main_router = APIRouter()
+main_router.include_router(auth.router)
+main_router.include_router(root.router)
+main_router.include_router(lab1.router)

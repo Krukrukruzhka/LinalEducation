@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from functools import partial
 
-from app.router import unprotected_routers
+from app.router import main_router
 from config.application import activate_application_settings, deactivate_application_settings
 from config.application import app_settings
 from src.utils.constants import LOCAL_ENV
@@ -38,7 +38,7 @@ def create_app(
 
     app.mount('/static', StaticFiles(directory=os.path.join(app_settings.app_config.template_path, 'static')), 'static')
 
-    app.include_router(unprotected_routers)
+    app.include_router(main_router)
 
     logger.debug("App created successfull")
 

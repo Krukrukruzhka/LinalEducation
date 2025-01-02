@@ -10,11 +10,11 @@ from config.application import app_settings
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-router = APIRouter()
+router = APIRouter(tags=["auth"])
 
 
 # Registrate user
-@router.post("/register-user")
+@router.post("/register-user", tags=["unprotected"])
 async def register_user(request: Request, user: User):
     existing_user = await app_settings.database.get_user_by_username(user.username)
 
@@ -30,7 +30,7 @@ async def register_user(request: Request, user: User):
 
 
 # Authorize user and get token
-@router.post("/token")
+@router.post("/token", tags=["unprotected"])
 async def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
     existing_user = await app_settings.database.get_user_by_username(form_data.username)
     if not existing_user or not verify_password(form_data.password, existing_user.password):
@@ -42,7 +42,7 @@ async def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
 
 
 # Sample of protected route
-@router.get("/protected")
+@router.get("/protected", tags=["protected"])
 async def protected_route(token: str = Depends(oauth2_scheme)):
     payload = decode_token(token)
     if payload is None:

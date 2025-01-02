@@ -3,7 +3,6 @@ import asyncio
 
 from typing import Optional
 from asyncpg.pool import PoolConnectionProxy
-from sqlalchemy.testing.util import drop_all_tables
 
 from src.datamodels.database_config import DatabaseConfig
 from src.datamodels.user import User
