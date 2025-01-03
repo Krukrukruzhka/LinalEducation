@@ -5,9 +5,14 @@ from typing import Optional
 from asyncpg.pool import PoolConnectionProxy
 
 from src.datamodels.database_config import DatabaseConfig
-from src.datamodels.user import User
+from src.datamodels.user import User, Student, Teacher
+
+from src.algorithms import lab1
 
 
+LABS_COUNT = 12
+
+# TODO: change hardcoded role_id to enum
 class Database:
     def __init__(self):
         self.config = dict(DatabaseConfig())
@@ -45,6 +50,7 @@ class Database:
             )
 
             for table in tables:
+                await conn.execute(f'TRUNCATE TABLE {table["tablename"]} CASCADE;')
                 await conn.execute(f'DROP TABLE IF EXISTS {table["tablename"]} CASCADE;')
 
             # Восстанавливаем временные ограничения целостности
@@ -91,26 +97,25 @@ class Database:
             await connection.execute(sql_query)
 
             sql_query = ''' 
-                CREATE TABLE IF NOT EXISTS students (
-                    id SERIAL PRIMARY KEY,
-                    group_id INTEGER NOT NULL REFERENCES groups(id),
-                    user_id INTEGER NOT NULL REFERENCES users(id)
-                );
-                '''  # create table of students
-            await connection.execute(sql_query)
-
-            sql_query = ''' 
                 CREATE TABLE IF NOT EXISTS lab1 (
                     id SERIAL PRIMARY KEY,
-                    name TEXT NOT NULL,
                     alpha INTEGER NOT NULL,
                     beta INTEGER NOT NULL,
                     matrix_a INTEGER[][] NOT NULL,
-                    matrix_b INTEGER[][] NOT NULL,
-                    student_id INTEGER NOT NULL REFERENCES students(id),
-                    mark INTEGER
+                    matrix_b INTEGER[][] NOT NULL
                 );
                 '''  # create table of lab1
+            await connection.execute(sql_query)
+
+            sql_query = ''' 
+                CREATE TABLE IF NOT EXISTS students (
+                    id SERIAL PRIMARY KEY,
+                    group_id INTEGER REFERENCES groups(id),
+                    user_id INTEGER NOT NULL REFERENCES users(id),
+                    marks INTEGER[] NOT NULL,
+                    lab1_id INTEGER NOT NULL REFERENCES lab1(id)
+                );
+                '''  # create table of students
             await connection.execute(sql_query)
 
         async def fill_all_tables_by_default(connection: PoolConnectionProxy):
@@ -137,21 +142,89 @@ class Database:
                 user_row = User(**user_row)
             return user_row
 
+    async def get_student_by_username(self, username: str) -> Optional[Student]:
+        async with self._pool.acquire() as conn:
+            sql_query = '''
+                SELECT students.*
+                FROM students
+                JOIN users ON students.user_id = users.id
+                WHERE users.username = $1;
+                '''
+            student_row = await conn.fetchrow(sql_query, username)
+            if student_row is not None:
+                student_row = Student(**student_row)
+            return student_row
+
+    async def get_teacher_by_username(self, username: str) -> Optional[Teacher]:
+        async with self._pool.acquire() as conn:
+            sql_query = '''
+                SELECT teachers.*
+                FROM teachers
+                JOIN users ON teachers.user_id = users.id
+                WHERE users.username = $1;
+                '''
+            teacher_row = await conn.fetchrow(sql_query, username)
+            if teacher_row is not None:
+                teacher_row = Teacher(**teacher_row)
+            return teacher_row
+
     async def registrate_user(self, user: User):
+        async def add_new_user(user: User) -> int:
+            sql_query = """ 
+                INSERT INTO users (name, username, password, role_id)
+                VALUES
+                    ($1, $2, $3, $4)
+                RETURNING id;
+                """
+            user_row = await conn.fetchrow(sql_query, user.name, user.username, user.password, user.role_id)
+            return user_row.get('id')
+
+        async def add_new_teacher(user_id: int) -> int:
+            sql_query = """ 
+                INSERT INTO teachers (user_id)
+                VALUES
+                    ($1)
+                RETURNING id;
+                """
+            teacher_row = await conn.fetchrow(sql_query, user_id)
+            return teacher_row.get('id')
+
+        async def add_new_student(user_id: int, lab1_id: int) -> int:
+            sql_query = """ 
+                INSERT INTO students (user_id, marks, lab1_id)
+                VALUES
+                    ($1, $2, $3)
+                RETURNING id;
+                """
+            marks = [None for _ in range(LABS_COUNT)]
+            student_row = await conn.fetchrow(sql_query, user_id, marks, lab1_id)
+            return student_row.get('id')
+
+        async def generate_lab1() -> int:
+            variant = lab1.generate_variant()
+            sql_query = """ 
+                INSERT INTO lab1 (matrix_a, matrix_b, alpha, beta)
+                VALUES
+                    ($1, $2, $3, $4)
+                RETURNING id;
+                """
+            lab1_row = await conn.fetchrow(sql_query, variant["matrix_a"], variant["matrix_b"], variant["alpha"], variant["beta"])
+            return lab1_row.get('id')
+
         async with self._pool.acquire() as conn:
             async with conn.transaction():
-                sql_query = """ 
-                    INSERT INTO users (name, username, password, role_id)
-                    VALUES
-                        ($1, $2, $3, $4);
-                    """
-                await conn.execute(sql_query, user.name, user.username, user.password, user.role_id)
+                user_id = await add_new_user(user)
+                if user.role_id == 1:
+                    teacher_id = await add_new_teacher(user_id)
+                elif user.role_id in (2, 3):
+                    lab1_id = await generate_lab1()
+                    student_id = await add_new_student(user_id, lab1_id)
 
 
 async def main():
     db = Database()
     await db.create_pool()
-    # await db.drop_all_tables()
+    await db.drop_all_tables()
     await db.setup_tables()
     # user = User(name="bba", username="ggg", password="zzz", role_id=1)
     # print(await db.get_user_by_username("ggg"))

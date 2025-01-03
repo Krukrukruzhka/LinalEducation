@@ -19,8 +19,8 @@ def generate_variant() -> dict[str, Any]:
     B = [[random.randint(-9, 9) for _ in range(b_n)] for _ in range(b_m)]
 
     return {
-        "A": A,
-        "B": B,
+        "matrix_a": A,
+        "matrix_b": B,
         "alpha": alpha,
         "beta": beta
     }
@@ -35,7 +35,7 @@ def check_lab(user_id: str, user_answers: dict[str, list[list[int | float]]]) ->
     condition = load_variant(user_id)
 
     alpha, beta = condition["alpha"], condition["beta"]
-    A, B = np.matrix(condition["A"]), np.matrix(condition["B"])
+    A, B = np.matrix(condition["matrix_a"]), np.matrix(condition["matrix_b"])
 
     correct_answers = {
         "step_1": A * B,
