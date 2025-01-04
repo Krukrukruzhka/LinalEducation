@@ -2,10 +2,12 @@ import logging
 from typing import Any
 
 from fastapi import APIRouter, Request
+from fastapi import Depends
 
 from config.application import app_settings
-from src.algorithms.lab1 import load_variant, check_lab
-from src.datamodels.user_answers import AnswerLab1
+from src.algorithms import lab1
+from src.datamodels.labs import Lab1Request, Lab1Response
+from src.utils.auth_utils import get_username_by_jwt, oauth2_scheme
 
 
 logger = logging.getLogger(__name__)
@@ -13,22 +15,41 @@ router = APIRouter(prefix="/lab1", tags=["protected"])
 
 
 @router.get("/", tags=["html"])
-async def get_lab1_page(request: Request):
+async def get_lab1_page(request: Request, token: str = Depends(oauth2_scheme)):
     templates = app_settings.ui.templates
 
-    variant = load_variant(user_id=None)  # TODO: valid id from database
+    username = get_username_by_jwt(token)
+    current_student = await app_settings.database.get_student_by_username(username)
+    if current_student is None:
+        raise Exception("Maybe you not a student")  # TODO: change to correct HTTPException
+
+    variant = await app_settings.database.load_lab1_variant(student_id=current_student.id)
 
     web_context = {
         "request": request,
-        **variant
+        **variant.dict(),
+        "is_solved": current_student.marks[0]
     }
 
-    return templates.TemplateResponse("lab1.html", context=web_context)  # TODO: create correct page
+    return templates.TemplateResponse("lab1.html", context=web_context)
 
 
 @router.post("/check", tags=["checker"])
-async def check(request: Request, user_answer: AnswerLab1) -> dict[str, Any]:
-    # TODO: release correct functional after auth
+async def check_lab1(request: Request, user_answer: Lab1Response, token: str = Depends(oauth2_scheme)) -> dict[str, Any]:
+    username = get_username_by_jwt(token)
+    current_student = await app_settings.database.get_student_by_username(username)
+    if current_student is None:
+        raise Exception("Maybe you not a student")  # TODO: change to correct HTTPException
+
+    variant = await app_settings.database.load_lab1_variant(student_id=current_student.id)
+
+    is_correct_answer = lab1.check_lab(condition=variant, user_answer=user_answer)
+
+    if is_correct_answer:  # TODO: if two requests arrive at the same time, the score may get lost
+        marks = current_student.marks
+        marks[0] = True
+        await app_settings.database.update_marks_by_username(username=username, new_marks=marks)
+
     return {
-        "verdict": check_lab(user_id=None, user_answers=dict(user_answer))
+        "verdict": is_correct_answer
     }

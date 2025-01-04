@@ -22,3 +22,4 @@ class Student(BaseModel):
     id: Optional[int] = None
     group_id: Optional[int] = None
     user_id: int
+    marks: list[bool]

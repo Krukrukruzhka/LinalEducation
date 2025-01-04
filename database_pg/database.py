@@ -6,6 +6,7 @@ from asyncpg.pool import PoolConnectionProxy
 
 from src.datamodels.database_config import DatabaseConfig
 from src.datamodels.user import User, Student, Teacher
+from src.datamodels.labs import Lab1Request
 
 from src.algorithms import lab1
 
@@ -63,7 +64,7 @@ class Database:
                     id SERIAL PRIMARY KEY,
                     name TEXT NOT NULL 
                 );
-                '''  # create table of roles
+            '''  # create table of roles
             await connection.execute(sql_query)
 
             sql_query = ''' 
@@ -74,7 +75,7 @@ class Database:
                     password TEXT NOT NULL,
                     role_id INTEGER NOT NULL REFERENCES roles(id)
                 );
-                '''  # create table of users
+            '''  # create table of users
             await connection.execute(sql_query)
 
             sql_query = ''' 
@@ -84,7 +85,7 @@ class Database:
                     phone TEXT,
                     user_id INTEGER NOT NULL REFERENCES users(id)
                 );
-                '''  # create table of teachers
+            '''  # create table of teachers
             await connection.execute(sql_query)
 
             sql_query = ''' 
@@ -93,7 +94,7 @@ class Database:
                     name TEXT NOT NULL,
                     teacher_id INTEGER NOT NULL REFERENCES teachers(id)
                 );
-                '''  # create table of groups
+            '''  # create table of groups
             await connection.execute(sql_query)
 
             sql_query = ''' 
@@ -104,7 +105,7 @@ class Database:
                     matrix_a INTEGER[][] NOT NULL,
                     matrix_b INTEGER[][] NOT NULL
                 );
-                '''  # create table of lab1
+            '''  # create table of lab1
             await connection.execute(sql_query)
 
             sql_query = ''' 
@@ -112,10 +113,10 @@ class Database:
                     id SERIAL PRIMARY KEY,
                     group_id INTEGER REFERENCES groups(id),
                     user_id INTEGER NOT NULL REFERENCES users(id),
-                    marks INTEGER[] NOT NULL,
+                    marks BOOLEAN[] NOT NULL,
                     lab1_id INTEGER NOT NULL REFERENCES lab1(id)
                 );
-                '''  # create table of students
+            '''  # create table of students
             await connection.execute(sql_query)
 
         async def fill_all_tables_by_default(connection: PoolConnectionProxy):
@@ -123,7 +124,7 @@ class Database:
                 INSERT INTO roles (name)
                 VALUES
                     ('teacher'), ('student'), ('leader'), ('developer');
-                '''  # fill roles
+            '''  # fill roles
             await connection.execute(sql_query)
 
         async with self._pool.acquire() as conn:
@@ -136,7 +137,7 @@ class Database:
             sql_query = ''' 
                 SELECT * FROM users
                 WHERE username = $1;
-                '''
+            '''
             user_row = await conn.fetchrow(sql_query, username)
             if user_row is not None:
                 user_row = User(**user_row)
@@ -149,7 +150,7 @@ class Database:
                 FROM students
                 JOIN users ON students.user_id = users.id
                 WHERE users.username = $1;
-                '''
+            '''
             student_row = await conn.fetchrow(sql_query, username)
             if student_row is not None:
                 student_row = Student(**student_row)
@@ -162,7 +163,7 @@ class Database:
                 FROM teachers
                 JOIN users ON teachers.user_id = users.id
                 WHERE users.username = $1;
-                '''
+            '''
             teacher_row = await conn.fetchrow(sql_query, username)
             if teacher_row is not None:
                 teacher_row = Teacher(**teacher_row)
@@ -175,7 +176,7 @@ class Database:
                 VALUES
                     ($1, $2, $3, $4)
                 RETURNING id;
-                """
+            """
             user_row = await conn.fetchrow(sql_query, user.name, user.username, user.password, user.role_id)
             return user_row.get('id')
 
@@ -185,7 +186,7 @@ class Database:
                 VALUES
                     ($1)
                 RETURNING id;
-                """
+            """
             teacher_row = await conn.fetchrow(sql_query, user_id)
             return teacher_row.get('id')
 
@@ -195,8 +196,8 @@ class Database:
                 VALUES
                     ($1, $2, $3)
                 RETURNING id;
-                """
-            marks = [None for _ in range(LABS_COUNT)]
+            """
+            marks = [False for _ in range(LABS_COUNT)]
             student_row = await conn.fetchrow(sql_query, user_id, marks, lab1_id)
             return student_row.get('id')
 
@@ -207,8 +208,8 @@ class Database:
                 VALUES
                     ($1, $2, $3, $4)
                 RETURNING id;
-                """
-            lab1_row = await conn.fetchrow(sql_query, variant["matrix_a"], variant["matrix_b"], variant["alpha"], variant["beta"])
+            """
+            lab1_row = await conn.fetchrow(sql_query, variant.matrix_a, variant.matrix_b, variant.alpha, variant.beta)
             return lab1_row.get('id')
 
         async with self._pool.acquire() as conn:
@@ -219,6 +220,34 @@ class Database:
                 elif user.role_id in (2, 3):
                     lab1_id = await generate_lab1()
                     student_id = await add_new_student(user_id, lab1_id)
+
+    async def update_marks_by_username(self, username: str, new_marks: list[bool]) -> None:
+        async with self._pool.acquire() as conn:
+            sql_query = '''
+               UPDATE students
+               SET marks = $1
+               WHERE user_id = (
+                   SELECT id
+                   FROM users
+                   WHERE username = $2
+               );
+            '''
+            await conn.execute(sql_query, new_marks, username)
+
+    async def load_lab1_variant(self, student_id: int) -> Optional[Lab1Request]:
+        async with self._pool.acquire() as conn:
+            sql_query = '''
+                SELECT lab1.*
+                FROM students
+                JOIN lab1 ON lab1.id = students.lab1_id
+                WHERE students.id = $1;
+            '''
+            variant_row = await conn.fetchrow(sql_query, student_id)
+            if variant_row is not None:
+                variant = Lab1Request(**variant_row)
+            else:
+                raise Exception  # TODO: change to correct exception and handle it in routes
+            return variant
 
 
 async def main():

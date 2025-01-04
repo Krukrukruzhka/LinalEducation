@@ -1,3 +1,4 @@
+from fastapi import Depends
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
@@ -37,3 +38,8 @@ def decode_token(token: str):
         return payload
     except JWTError:
         return None
+
+
+def get_username_by_jwt(token: str):
+    payload = decode_token(token)
+    return payload['sub']
