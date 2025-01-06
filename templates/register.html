@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{url_for('static', path='css/register.css')}}">
+
+    <script src="{{url_for('static', path='js/register.js')}}"></script>
+
+    <title>Linear algebra</title>
+</head>
+
+<body>
+    <main class="main_page">
+        <div class="auth_block">
+            <div class="auth_input_form">
+                <label for="input_role">Роль</label>
+                <select id="input_role">
+                    <option value="2">Студент</option>
+                    <option value="3">Староста</option>
+                    <option value="1">Преподаватель</option>
+                </select>
+
+                <div class="input_element_with_description">
+                    <p class="input_description">ФИО</p>
+                    <input type="text" class="auth_input_element" id="input_name"/>
+                </div>
+                <div class="input_element_with_description">
+                    <p class="input_description">Логин (4-30 символов)</p>
+                    <input type="text" class="auth_input_element" id="input_login"/>
+                </div>
+                <div class="input_element_with_description">
+                    <p class="input_description">Пароль (8-16 символов)</p>
+                    <input type="password" class="auth_input_element" id="input_password"/>
+                </div>
+                <div class="input_element_with_description">
+                    <p class="input_description">Повторите пароль</p>
+                    <input type="password" class="auth_input_element" id="input_repeated_password"/>
+                </div>
+            </div>
+            <button type="button" class="auth_button" onclick="register_user()">Зарегистрироваться</button>
+        </div>
+    </main>
+</body>
+
+</html>
