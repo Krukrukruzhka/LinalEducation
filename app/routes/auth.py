@@ -1,12 +1,11 @@
 from fastapi import APIRouter
 
-from fastapi.security import OAuth2PasswordRequestForm
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 
-from src.utils.auth_utils import create_access_token, decode_token, verify_password, get_password_hash, oauth2_scheme
+from src.utils.auth_utils import create_access_token, decode_token, verify_password, get_password_hash, ACCESS_TOKEN_EXPIRE_DAYS, get_token_from_cookie, get_username_by_jwt
 from src.datamodels.user import User
-from src.datamodels.auth import RegistrationRequest
+from src.datamodels.auth import RegistrationRequest, LoginRequest
 from config.application import app_settings
 
 
@@ -34,8 +33,19 @@ async def register_user(request: Request, registration_data: RegistrationRequest
     return JSONResponse({"msg": "Registration was successful"})
 
 
+@router.get("/login", tags=["html"])
+async def login_page(request: Request):
+    templates = app_settings.ui.templates
+
+    web_context = {
+        "request": request
+    }
+
+    return templates.TemplateResponse("login.html", context=web_context)
+
+
 @router.get("/register", tags=["html"])
-async def registrate(request: Request):
+async def registrate_page(request: Request):
     templates = app_settings.ui.templates
 
     web_context = {
@@ -46,22 +56,32 @@ async def registrate(request: Request):
 
 
 # Authorize user and get token
-@router.post("/token", tags=["unprotected"])
-async def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    existing_user = await app_settings.database.get_user_by_username(form_data.username)
-    if not existing_user or not verify_password(form_data.password, existing_user.password):
+@router.post("/login-user", tags=["unprotected"])
+async def get_token(response: Response, login_data: LoginRequest):
+    existing_user = await app_settings.database.get_user_by_username(login_data.username)
+    if not existing_user or not verify_password(login_data.password, existing_user.password):
         raise HTTPException(status_code=401, detail="Unknown username or password")
 
-    token_data = {"sub": form_data.username}
+    token_data = {"sub": login_data.username}
     access_token = create_access_token(data=token_data)
-    return JSONResponse({"access_token": access_token, "token_type": "bearer"})
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        max_age= ACCESS_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
+    )
+
+    return {"message": "Token was issued successfully"}
 
 
 # Sample of protected route
 @router.get("/protected", tags=["protected"])
-async def protected_route(token: str = Depends(oauth2_scheme)):
-    payload = decode_token(token)
-    if payload is None:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
+async def protected_route(token: str = Depends(get_token_from_cookie)):
+    return JSONResponse({"msg": f"Welcome, {get_username_by_jwt(token)}!"})
 
-    return JSONResponse({"msg": f"Welcome, {payload['sub']}!"})
+
+@router.post("/logout", tags=["unprotected"])
+async def logout(response: Response):
+    response.delete_cookie("access_token")
+    return {"message": "Logged out successfully"}
