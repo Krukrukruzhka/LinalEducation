@@ -1,0 +1,79 @@
+{% extends "basic.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{url_for('static', path='css/teacher.css')}}">
+<link rel="stylesheet" href="{{url_for('static', path='css/profile.css')}}">
+{% endblock %}
+
+{% block main_content %}
+<div class="course_block">
+    <h1>Линейная алгебра</h1>
+    <h3>Лабораторные работы</h3>
+    <table>
+        <thead>
+            <tr>
+                <th rowspan="2">Имя студента</th>
+                <th rowspan="2">Общий результат</th>
+                <th colspan="5">Работы</th>
+            </tr>
+            <tr>
+                <th>Работа 1</th>
+                <th>Работа 2</th>
+                <th>Работа 3</th>
+                <th>Работа 4</th>
+                <th>Работа 5</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Пример для группы A -->
+            <tr>
+                <td class="group-name" colspan="7">Группа A</td>
+            </tr>
+            <tr>
+                <td>Иван Иванов</td>
+                <td>90</td>
+                <td>18</td>
+                <td>20</td>
+                <td>17</td>
+                <td>18</td>
+                <td>17</td>
+            </tr>
+            <tr>
+                <td>Мария Петрова</td>
+                <td>85</td>
+                <td>17</td>
+                <td>18</td>
+                <td>16</td>
+                <td>17</td>
+                <td>17</td>
+            </tr>
+
+            <!-- Пример для группы B -->
+            <tr>
+                <td class="group-name" colspan="7">Группа B</td>
+            </tr>
+            <tr>
+                <td>Алексей Смирнов</td>
+                <td>88</td>
+                <td>17</td>
+                <td>18</td>
+                <td>18</td>
+                <td>18</td>
+                <td>17</td>
+            </tr>
+            <tr>
+                <td>Ольга Кузнецова</td>
+                <td>91</td>
+                <td>19</td>
+                <td>20</td>
+                <td>18</td>
+                <td>17</td>
+                <td>17</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block end_scripts %}
+{% endblock %}
