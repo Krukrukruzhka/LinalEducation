@@ -1,5 +1,8 @@
-const REGISTRATE_URL = "http://127.0.0.1/register-user";
-const LOGIN_URL = "http://127.0.0.1/login-user";
+const DOMAIN = "http://127.0.0.1"
+
+REGISTRATE_URL = DOMAIN + "/register-user";
+LOGIN_URL = DOMAIN + "/login-user";
+PROFILE_URL = DOMAIN + "/";
 
 
 function register_user() {
@@ -24,6 +27,7 @@ function register_user() {
             if (this.status === 200) {
                 console.log("Response:", this.responseText);
                 const responseObject = JSON.parse(this.responseText);
+                window.location.href = PROFILE_URL;
             } else {
                 console.error("Request failed with status", this.status);
             }
@@ -55,9 +59,20 @@ function login_user() {
             if (this.status === 200) {
                 console.log("Response:", this.responseText);
                 const responseObject = JSON.parse(this.responseText);
+                window.location.href = PROFILE_URL;
             } else {
                 console.error("Request failed with status", this.status);
             }
         }
     };
+}
+
+
+function to_login() {
+    window.location.href = DOMAIN + "/login";
+}
+
+
+function to_register() {
+    window.location.href = DOMAIN + "/register";
 }

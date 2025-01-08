@@ -37,14 +37,14 @@ def decode_token(token: str):
         return None
 
 
-def get_username_by_jwt(token: str):
+def get_username_by_jwt(token: str) -> str:
     payload = decode_token(token)
     if payload is None or payload.get('sub', None) is None:
         raise HTTPException(status_code=401, detail="Invalid token")
     return payload['sub']
 
 
-async def get_token_from_cookie(access_token: str = Cookie(None)):
+async def get_token_from_cookie(access_token: str = Cookie(None)) -> str:
     if access_token is None:
         raise HTTPException(status_code=401, detail="No access token provided")
     return access_token

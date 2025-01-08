@@ -10,6 +10,7 @@ from app.router import main_router
 from config.application import activate_application_settings, deactivate_application_settings
 from config.application import app_settings
 from src.utils.constants import LOCAL_ENV
+from src.middleware.redirect import RedirectMiddleware
 
 
 logger = logging.getLogger(__name__)
@@ -39,6 +40,8 @@ def create_app(
     app.mount('/static', StaticFiles(directory=os.path.join(app_settings.app_config.template_path, 'static')), 'static')
 
     app.include_router(main_router)
+
+    app.add_middleware(RedirectMiddleware)
 
     logger.debug("App created successfull")
 
