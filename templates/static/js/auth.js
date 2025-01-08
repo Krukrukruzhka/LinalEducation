@@ -1,4 +1,4 @@
-const DOMAIN = "http://127.0.0.1"
+DOMAIN = "";
 
 REGISTRATE_URL = DOMAIN + "/register-user";
 LOGIN_URL = DOMAIN + "/login-user";

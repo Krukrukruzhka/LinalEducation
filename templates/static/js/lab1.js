@@ -1,4 +1,6 @@
-const URL = "http://127.0.0.1/lab1/check";
+DOMAIN = "";
+
+const URL = DOMAIN + "/lab1/check";
 
 
 function show_verdict(verdict) {

@@ -1,4 +1,6 @@
-const LOGOUT_URL = "http://127.0.0.1/logout";
+DOMAIN = "";
+
+const LOGOUT_URL = DOMAIN + "/logout";
 
 
 function logout() {
