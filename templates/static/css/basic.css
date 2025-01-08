@@ -1,0 +1,40 @@
+.header_block {
+    height: 100px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    /* margin-top: 1.5vw;
+    margin-bottom: 1.5vw; */
+}
+
+.header_block > * {
+    margin: 0 10px;
+}
+
+.logout_button {
+    height: 40px;
+    width: 200px;
+}
+
+.main_page {
+    min-height: 92vh;
+}
+
+.footer_block {
+    min-height: 25vh;
+}
+
+.user_info_block {
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user_info_element {
+    margin: 0 30px;
+}

@@ -2,7 +2,7 @@ const DOMAIN = "http://127.0.0.1"
 
 REGISTRATE_URL = DOMAIN + "/register-user";
 LOGIN_URL = DOMAIN + "/login-user";
-PROFILE_URL = DOMAIN + "/";
+PROFILE_URL = DOMAIN + "/profile";
 
 
 function register_user() {

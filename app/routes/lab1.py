@@ -20,6 +20,7 @@ async def get_lab1_page(request: Request, token: str = Depends(get_token_from_co
 
     username = get_username_by_jwt(token)
     current_student = await app_settings.database.get_student_by_username(username)
+    current_user = await app_settings.database.get_user_by_username(username)
     if current_student is None:
         raise Exception("Maybe you not a student")  # TODO: change to correct HTTPException
 
@@ -27,7 +28,8 @@ async def get_lab1_page(request: Request, token: str = Depends(get_token_from_co
 
     web_context = {
         "request": request,
-        **variant.dict(),
+        "variant": variant.dict(),
+        "user": current_user,
         "is_solved": current_student.marks[0]
     }
 

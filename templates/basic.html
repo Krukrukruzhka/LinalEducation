@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <link rel="stylesheet" href="{{url_for('static', path='css/basic.css')}}">
+
+    <script src="{{url_for('static', path='js/basic.js')}}"></script>
+
     {% block head %}{% endblock %}
 
     <title>Linear algebra</title>
@@ -12,7 +16,12 @@
 
 <body>
     <header class="header_block">
-        
+        <div class="user_info_block">
+            <p class="user_info_element" id="user_name">ФИО: {{ user['name'] }}</p>
+            <p class="user_info_element" id="user_login">Логин: {{ user['username'] }}</p>
+            <p class="user_info_element" id="user_role">Роль: {{ user['role_id'] }}</p>
+        </div>
+        <button class="logout_button" onclick="logout()">Выйти</button>
     </header>
 
     <main class="main_page">
@@ -20,7 +29,12 @@
     </main>
 
     <footer class="footer_block">
-
+        <div class="contacts_block">
+            <h3>В случае багов можно писать в:</h3>
+            <p class="contact_data">krukrukruzhka</p>
+            <p class="contact_data">misha230503@mail.ru</p>
+            <p class="contact_data">@m_zhilin</p>
+        </div>
     </footer>
 
     {% block end_scripts %}{% endblock %}
