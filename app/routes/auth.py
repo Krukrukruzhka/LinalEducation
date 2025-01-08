@@ -14,7 +14,7 @@ router = APIRouter(tags=["auth"])
 
 # Registrate user
 @router.post("/register-user", tags=["unprotected"])
-async def register_user(request: Request, registration_data: RegistrationRequest):
+async def register_user(request: Request, response: Response, registration_data: RegistrationRequest):
     existing_user = await app_settings.database.get_user_by_username(registration_data.username)
 
     if existing_user:
@@ -30,7 +30,17 @@ async def register_user(request: Request, registration_data: RegistrationRequest
 
     await app_settings.database.registrate_user(user)
 
-    return JSONResponse({"msg": "Registration was successful"})
+    token_data = {"sub": user.username}
+    access_token = create_access_token(data=token_data)
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        max_age=ACCESS_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
+    )
+
+    return {"msg": "Registration was successful"}
 
 
 @router.get("/login", tags=["html"])
