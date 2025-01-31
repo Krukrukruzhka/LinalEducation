@@ -14,7 +14,7 @@ from src.algorithms import lab1
 
 LABS_COUNT = 12
 
-# TODO: change hardcoded role_id to enum
+
 class Database:
     def __init__(self):
         self.config = dict(DatabaseConfig())
@@ -63,7 +63,7 @@ class Database:
             sql_query = ''' 
                 CREATE TABLE IF NOT EXISTS roles (
                     id SERIAL PRIMARY KEY,
-                    name TEXT NOT NULL 
+                    name TEXT UNIQUE NOT NULL 
                 );
             '''  # create table of roles
             await connection.execute(sql_query)
@@ -72,7 +72,7 @@ class Database:
                 CREATE TABLE IF NOT EXISTS users (
                     id SERIAL PRIMARY KEY,
                     name TEXT NOT NULL,
-                    username TEXT NOT NULL,
+                    username TEXT UNIQUE NOT NULL,
                     password TEXT NOT NULL,
                     role_id INTEGER NOT NULL REFERENCES roles(id)
                 );
@@ -84,7 +84,7 @@ class Database:
                     id SERIAL PRIMARY KEY,
                     email TEXT,
                     phone TEXT,
-                    user_id INTEGER NOT NULL REFERENCES users(id)
+                    user_id INTEGER UNIQUE NOT NULL REFERENCES users(id)
                 );
             '''  # create table of teachers
             await connection.execute(sql_query)
@@ -92,7 +92,7 @@ class Database:
             sql_query = ''' 
                 CREATE TABLE IF NOT EXISTS groups (
                     id SERIAL PRIMARY KEY,
-                    name TEXT NOT NULL,
+                    name TEXT UNIQUE NOT NULL,
                     teacher_id INTEGER NOT NULL REFERENCES teachers(id)
                 );
             '''  # create table of groups
@@ -113,7 +113,7 @@ class Database:
                 CREATE TABLE IF NOT EXISTS students (
                     id SERIAL PRIMARY KEY,
                     group_id INTEGER REFERENCES groups(id),
-                    user_id INTEGER NOT NULL REFERENCES users(id),
+                    user_id INTEGER UNIQUE NOT NULL REFERENCES users(id),
                     marks BOOLEAN[] NOT NULL,
                     lab1_id INTEGER NOT NULL REFERENCES lab1(id)
                 );
@@ -425,7 +425,6 @@ async def main():
     # print(await db.get_all_groups_and_students())
     # await db.drop_all_tables()
     # await db.setup_tables()
-
 
     # user = User(name="bba", username="ggg", password="zzz", role_id=1)
     # print(await db.get_group_id_by_name('М8О-403Б-21'))
