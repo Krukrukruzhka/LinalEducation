@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from fastapi import Depends, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 
-from src.utils.auth_utils import create_access_token, decode_token, verify_password, get_password_hash, ACCESS_TOKEN_EXPIRE_DAYS, get_token_from_cookie, get_username_by_jwt
+from src.utils.auth_utils import create_access_token, verify_password, get_password_hash, ACCESS_TOKEN_EXPIRE_DAYS, get_token_from_cookie, get_username_by_jwt
 from src.datamodels.user import User
 from src.datamodels.auth import RegistrationRequest, LoginRequest
 from config.application import app_settings
@@ -12,7 +12,6 @@ from config.application import app_settings
 router = APIRouter(tags=["auth"])
 
 
-# Registrate user
 @router.post("/register-user", tags=["unprotected"])
 async def register_user(request: Request, response: Response, registration_data: RegistrationRequest):
     existing_user = await app_settings.database.get_user_by_username(registration_data.username)
@@ -65,7 +64,6 @@ async def registrate_page(request: Request):
     return templates.TemplateResponse("register.html", context=web_context)
 
 
-# Authorize user and get token
 @router.post("/login-user", tags=["unprotected"])
 async def get_token(response: Response, login_data: LoginRequest):
     existing_user = await app_settings.database.get_user_by_username(login_data.username)

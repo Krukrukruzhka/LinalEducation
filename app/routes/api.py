@@ -6,7 +6,7 @@ from fastapi import APIRouter, Request, Depends
 from config.application import app_settings
 from src.utils.auth_utils import get_username_by_jwt, get_token_from_cookie
 from src.datamodels.utils import AdditionalUserInfo, TextWithGroups
-from src.datamodels.user import StudentGroup
+from src.datamodels.user import StudentGroup, RolesEnum
 
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ async def update_additional_info(request: Request, additional_info: AdditionalUs
 
     user = await app_settings.database.get_user_by_username(username)
 
-    if user.role_id == 1:
+    if user.role_id == RolesEnum.TEACHER.id:
         await app_settings.database.update_additional_teacher_info(username=username, additional_info=additional_info)
     else:
         await app_settings.database.update_additional_student_info(username=username, additional_info=additional_info)
@@ -34,7 +34,7 @@ async def add_new_groups(request: Request, text_with_groups: TextWithGroups, tok
     user = await app_settings.database.get_user_by_username(username)
     teacher = await app_settings.database.get_teacher_by_username(username)
 
-    if user.role_id != 1:
+    if user.role_id not in (RolesEnum.TEACHER.id, RolesEnum.DEVELOPER.id):
         return HTTPException(status_code=403, detail="Authorization failed")
 
     student_groups = text_with_groups.text_with_groups.split("\n")

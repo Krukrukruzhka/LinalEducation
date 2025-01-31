@@ -4,6 +4,7 @@ from fastapi import APIRouter, Request, Depends
 
 from config.application import app_settings
 from src.utils.auth_utils import get_username_by_jwt, get_token_from_cookie
+from src.datamodels.user import RolesEnum
 
 
 logger = logging.getLogger(__name__)
@@ -38,8 +39,7 @@ async def get_profile_page(request: Request, token: str = Depends(get_token_from
         "user_data": user_data
     }
 
-    # TODO: here should also be a developer's page.
-    if user.role_id == 1:  # TODO: change to enum
+    if user.role_id == RolesEnum.TEACHER.id:
         web_context.update({"all_groups_and_students": await app_settings.database.get_all_groups_and_students()})
         return templates.TemplateResponse("teacher.html", context=web_context)
     else:

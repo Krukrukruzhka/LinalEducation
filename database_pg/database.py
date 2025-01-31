@@ -5,7 +5,7 @@ from typing import Optional
 from asyncpg.pool import PoolConnectionProxy
 
 from src.datamodels.database_config import DatabaseConfig
-from src.datamodels.user import User, Student, Teacher, UserRole, StudentGroup, Roles
+from src.datamodels.user import User, Student, Teacher, StudentGroup, RolesEnum
 from src.datamodels.labs import Lab1Request
 from src.datamodels.utils import BasicData, AdditionalUserInfo, StudentWithResults
 
@@ -216,9 +216,9 @@ class Database:
         async with self._pool.acquire() as conn:
             async with conn.transaction():
                 user_id = await add_new_user(user, conn)
-                if user.role_id == 1:
+                if user.role_id == RolesEnum.TEACHER.id:
                     teacher_id = await add_new_teacher(user_id, conn)
-                elif user.role_id in (2, 3):
+                elif user.role_id in (RolesEnum.STUDENT.id, RolesEnum.LEADER.id):
                     lab1_id = await generate_lab1()
                     student_id = await add_new_student(user_id, lab1_id, conn)
 
@@ -329,12 +329,11 @@ class Database:
 
     async def get_basic_data_by_username(self, username: str) -> BasicData:
         user = await self.get_user_by_username(username)
-        role_name = Roles.get_role_ru_name_by_id(user.role_id)
+        role_name = RolesEnum.get_role_ru_name_by_id(user.role_id)
         all_groups = await self.get_all_groups()
         all_groups = [student_group for student_group in all_groups]
 
-        # TODO: add for developer role
-        if user.role_id in (2, 3):
+        if user.role_id in (RolesEnum.STUDENT.id, RolesEnum.LEADER.id):
             student = await self.get_student_by_username(username)
             student_group = await self.get_group_by_student_id(student_id=student.id)
             return BasicData(
@@ -418,7 +417,6 @@ class Database:
                     await self.update_name_by_username(username=username, new_name=additional_info.name, connection=conn)
                 if additional_info.group_name:
                     await update_student_group(connection=conn)
-
 
 
 async def main():

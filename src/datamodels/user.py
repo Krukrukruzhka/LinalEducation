@@ -1,4 +1,3 @@
-import enum
 from typing import Optional
 
 from pydantic import BaseModel
@@ -38,15 +37,22 @@ class UserRole(BaseModel):
     ru_name: str
 
 
-class Roles(enum.Enum):
-    teacher = UserRole(id=1, name="teacher", ru_name="Преподаватель")
-    student = UserRole(id=2, name="student", ru_name="Студент")
-    leader = UserRole(id=3, name="leader", ru_name="Староста")
-    developer = UserRole(id=4, name="developer", ru_name="Разработчик")
+class RolesEnum:
+    TEACHER = UserRole(id=1, name="teacher", ru_name="Преподаватель")
+    STUDENT = UserRole(id=2, name="student", ru_name="Студент")
+    LEADER = UserRole(id=3, name="leader", ru_name="Староста")
+    DEVELOPER = UserRole(id=4, name="developer", ru_name="Разработчик")
+
+    ALL = [
+        TEACHER,
+        STUDENT,
+        LEADER,
+        DEVELOPER
+    ]
 
     @classmethod
     def get_role_ru_name_by_id(cls, role_id: int) -> Optional[str]:
-        for role in cls:
-            if role.value.id == role_id:
-                return role.value.ru_name
+        for role in cls.ALL:
+            if role.id == role_id:
+                return role.ru_name
         return None
