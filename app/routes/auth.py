@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 
 from src.utils.auth_utils import create_access_token, verify_password, get_password_hash, ACCESS_TOKEN_EXPIRE_DAYS, get_token_from_cookie, get_username_by_jwt
-from src.datamodels.user import User
+from src.datamodels.user import User, RolesEnum
 from src.datamodels.auth import RegistrationRequest, LoginRequest
 from config.application import app_settings
 
@@ -58,7 +58,8 @@ async def registrate_page(request: Request):
     templates = app_settings.ui.templates
 
     web_context = {
-        "request": request
+        "request": request,
+        "RolesEnum": RolesEnum
     }
 
     return templates.TemplateResponse("register.html", context=web_context)

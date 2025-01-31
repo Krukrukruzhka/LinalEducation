@@ -18,9 +18,9 @@
             <div class="auth_input_form">
                 <label for="input_role">Роль</label>
                 <select id="input_role">
-                    <option value="2">Студент</option>
-                    <option value="3">Староста</option>
-                    <option value="1">Преподаватель</option>
+                    <option value="{{ RolesEnum.STUDENT.id }}">Студент</option>
+                    <option value="{{ RolesEnum.LEADER.id }}">Староста</option>
+                    <option value="{{ RolesEnum.TEACHER.id }}">Преподаватель</option>
                 </select>
 
                 <div class="input_element_with_description">
