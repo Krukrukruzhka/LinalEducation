@@ -1,5 +1,38 @@
 {% extends "basic.html" %}
 
+{% block edit_button %}
+<button class="user_info_element" id="edit_button" onclick="show_edit_block('edit_modal')">Редактировать</button>
+{% endblock %}
+
+{% block additional_userinfo %}
+<p class="user_info_element" id="teacher_email">Email: {{ user_data.teacher.email }}</p>
+<p class="user_info_element" id="teacher_phone">Телефон: {{ user_data.teacher.phone }}</p>
+{% endblock %}
+
+
+{% block add_groups %}
+<div id="add_groups" style="display: none;">
+    <h2>Добавить новые группы</h2>
+    <textarea id="group_description" rows="4" cols="50" placeholder="Введите описание группы здесь..."></textarea>
+    <br>
+    <button id="save_button_add_groups" onclick="add_new_groups()">Добавить</button>
+    <button id="close_button_add_groups" onclick="hide_edit_block('add_groups')">Закрыть</button>
+</div>
+{% endblock %}
+
+
+{% block edit_userinfo %}
+<div id="edit_modal" style="display: none;">
+    <h2>Редактирование данных</h2>
+
+    <label class="user_info">Имя: <input type="text" id="name"></label><br>
+    <label class="user_info">Почта: <input type="email" id="email"></label><br>
+    <label class="user_info">Телефон: <input type="tel" id="phone"></label><br>
+    <button id="save_button" onclick="save_userdata()">Сохранить</button>
+    <button id="close_button" onclick="hide_edit_block('edit_modal')">Закрыть</button>
+</div>
+{% endblock %}
+
 {% block head %}
 <link rel="stylesheet" href="{{url_for('static', path='css/teacher.css')}}">
 <link rel="stylesheet" href="{{url_for('static', path='css/profile.css')}}">
@@ -14,65 +47,35 @@
             <tr>
                 <th rowspan="2">Имя студента</th>
                 <th rowspan="2">Общий результат</th>
-                <th colspan="5">Работы</th>
+                <th colspan="12">Работы</th>
             </tr>
             <tr>
-                <th>Работа 1</th>
-                <th>Работа 2</th>
-                <th>Работа 3</th>
-                <th>Работа 4</th>
-                <th>Работа 5</th>
+                {% for lab_number in range(1, 13) %}
+                <th>Работа {{lab_number}}</th>
+                {% endfor %}
             </tr>
         </thead>
         <tbody>
-            <!-- Пример для группы A -->
+            {% for group_name, students in all_groups_and_students %}
             <tr>
-                <td class="group-name" colspan="7">Группа A</td>
+                <td class="group-name" colspan="14"><br>{{group_name}}</td>
             </tr>
-            <tr>
-                <td>Иван Иванов</td>
-                <td>90</td>
-                <td>18</td>
-                <td>20</td>
-                <td>17</td>
-                <td>18</td>
-                <td>17</td>
-            </tr>
-            <tr>
-                <td>Мария Петрова</td>
-                <td>85</td>
-                <td>17</td>
-                <td>18</td>
-                <td>16</td>
-                <td>17</td>
-                <td>17</td>
-            </tr>
+                {% for student_with_res in students %}
+                <tr>
+                    <td>{{student_with_res.name}}</td>
 
-            <!-- Пример для группы B -->
-            <tr>
-                <td class="group-name" colspan="7">Группа B</td>
-            </tr>
-            <tr>
-                <td>Алексей Смирнов</td>
-                <td>88</td>
-                <td>17</td>
-                <td>18</td>
-                <td>18</td>
-                <td>18</td>
-                <td>17</td>
-            </tr>
-            <tr>
-                <td>Ольга Кузнецова</td>
-                <td>91</td>
-                <td>19</td>
-                <td>20</td>
-                <td>18</td>
-                <td>17</td>
-                <td>17</td>
-            </tr>
+                    <td>{{student_with_res.total_result}}/12</td>
+
+                    {% for mark in student_with_res.marks %}
+                    <td>{% if mark %} + {% else %} - {% endif %}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            {% endfor %}
         </tbody>
     </table>
 </div>
+<button class="add_groups_button" onclick="show_edit_block('add_groups')">Добавить новые группы</button>
 {% endblock %}
 
 {% block end_scripts %}

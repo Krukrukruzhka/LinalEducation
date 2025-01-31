@@ -19,8 +19,11 @@ async def get_lab1_page(request: Request, token: str = Depends(get_token_from_co
     templates = app_settings.ui.templates
 
     username = get_username_by_jwt(token)
-    current_student = await app_settings.database.get_student_by_username(username)
-    current_user = await app_settings.database.get_user_by_username(username)
+    user_data = await app_settings.database.get_basic_data_by_username(username)
+
+    current_student = user_data.student
+    current_user = user_data.user
+
     if current_student is None:
         raise Exception("Maybe you not a student")  # TODO: change to correct HTTPException
 
@@ -30,7 +33,8 @@ async def get_lab1_page(request: Request, token: str = Depends(get_token_from_co
         "request": request,
         "variant": variant.dict(),
         "user": current_user,
-        "is_solved": current_student.marks[0]
+        "is_solved": current_student.marks[0],
+        "user_data": user_data
     }
 
     return templates.TemplateResponse("lab1.html", context=web_context)
@@ -50,7 +54,7 @@ async def check_lab1(request: Request, user_answer: Lab1Response, token: str = D
     if is_correct_answer:  # TODO: if two requests arrive at the same time, the score may get lost
         marks = current_student.marks
         marks[0] = True
-        await app_settings.database.update_marks_by_username(username=username, new_marks=marks)
+        await app_settings.database.update_user_marks(username=username, new_marks=marks)
 
     return {
         "verdict": is_correct_answer

@@ -5,8 +5,9 @@ from typing import Optional
 from asyncpg.pool import PoolConnectionProxy
 
 from src.datamodels.database_config import DatabaseConfig
-from src.datamodels.user import User, Student, Teacher
+from src.datamodels.user import User, Student, Teacher, UserRole, StudentGroup, Roles
 from src.datamodels.labs import Lab1Request
+from src.datamodels.utils import BasicData, AdditionalUserInfo, StudentWithResults
 
 from src.algorithms import lab1
 
@@ -170,7 +171,7 @@ class Database:
             return teacher_row
 
     async def registrate_user(self, user: User):
-        async def add_new_user(user: User) -> int:
+        async def add_new_user(user: User, conn: PoolConnectionProxy) -> int:
             sql_query = """ 
                 INSERT INTO users (name, username, password, role_id)
                 VALUES
@@ -180,7 +181,7 @@ class Database:
             user_row = await conn.fetchrow(sql_query, user.name, user.username, user.password, user.role_id)
             return user_row.get('id')
 
-        async def add_new_teacher(user_id: int) -> int:
+        async def add_new_teacher(user_id: int, conn: PoolConnectionProxy) -> int:
             sql_query = """ 
                 INSERT INTO teachers (user_id)
                 VALUES
@@ -190,7 +191,7 @@ class Database:
             teacher_row = await conn.fetchrow(sql_query, user_id)
             return teacher_row.get('id')
 
-        async def add_new_student(user_id: int, lab1_id: int) -> int:
+        async def add_new_student(user_id: int, lab1_id: int, conn: PoolConnectionProxy) -> int:
             sql_query = """ 
                 INSERT INTO students (user_id, marks, lab1_id)
                 VALUES
@@ -214,14 +215,14 @@ class Database:
 
         async with self._pool.acquire() as conn:
             async with conn.transaction():
-                user_id = await add_new_user(user)
+                user_id = await add_new_user(user, conn)
                 if user.role_id == 1:
-                    teacher_id = await add_new_teacher(user_id)
+                    teacher_id = await add_new_teacher(user_id, conn)
                 elif user.role_id in (2, 3):
                     lab1_id = await generate_lab1()
-                    student_id = await add_new_student(user_id, lab1_id)
+                    student_id = await add_new_student(user_id, lab1_id, conn)
 
-    async def update_marks_by_username(self, username: str, new_marks: list[bool]) -> None:
+    async def update_user_marks(self, username: str, new_marks: list[bool]) -> None:
         async with self._pool.acquire() as conn:
             sql_query = '''
                UPDATE students
@@ -249,15 +250,187 @@ class Database:
                 raise Exception  # TODO: change to correct exception and handle it in routes
             return variant
 
+    async def add_group(self, group: StudentGroup) -> None:
+        async with self._pool.acquire() as conn:
+            sql_query = """ 
+                INSERT INTO groups (name, teacher_id)
+                VALUES
+                    ($1, $2)
+                RETURNING id;
+            """
+            group_row = await conn.fetchrow(sql_query, group.name, group.teacher_id)
+            return group_row.get('id')
+
+    async def get_all_groups(self) -> list[StudentGroup]:
+        async with self._pool.acquire() as conn:
+            sql_query = '''
+                SELECT * FROM groups
+                ORDER BY id DESC;
+            '''
+            group_rows = await conn.fetch(sql_query)
+            return [StudentGroup(**group) for group in group_rows]
+
+    async def get_all_groups_and_students(self) -> list[(str, list[StudentWithResults])]:
+        groups_and_students = {}
+
+        async with self._pool.acquire() as conn:
+            sql_query = '''
+                SELECT groups.name as group_name, users.name as student_name, students.marks as marks
+                FROM students
+                JOIN users ON students.user_id = users.id
+                RIGHT JOIN groups ON students.group_id = groups.id
+                ORDER BY groups.name, users.name ASC;
+            '''
+            rows = await conn.fetch(sql_query)
+
+            for row in rows:
+                group_name = row['group_name']
+                student_name = row['student_name']
+                marks = row['marks']
+                if group_name not in groups_and_students:
+                    groups_and_students[group_name] = []
+
+                if marks:
+                    groups_and_students[group_name].append(
+                        StudentWithResults(name=student_name, marks=marks, total_result=sum(marks))
+                    )
+
+        groups_and_students = sorted(groups_and_students.items(), key=lambda x: x[0])[::-1]
+
+        return groups_and_students
+
+    async def get_group_id_by_name(self, name: str) -> Optional[int]:
+        async with self._pool.acquire() as conn:
+            sql_query = '''
+                SELECT id
+                FROM groups
+                WHERE name = $1;
+            '''
+            group_row = await conn.fetchrow(sql_query, name)
+            if group_row is not None:
+                return group_row['id']
+            return None
+
+    async def get_group_by_student_id(self, student_id: int) -> Optional[StudentGroup]:
+        async with self._pool.acquire() as conn:
+            sql_query = '''
+                SELECT *
+                FROM groups    
+                WHERE id = (
+                   SELECT group_id
+                   FROM students
+                   WHERE id = $1
+                );
+            '''
+            group_row = await conn.fetchrow(sql_query, student_id)
+            if group_row is not None:
+                group_row = StudentGroup(**group_row)
+            return group_row
+
+    async def get_basic_data_by_username(self, username: str) -> BasicData:
+        user = await self.get_user_by_username(username)
+        role_name = Roles.get_role_ru_name_by_id(user.role_id)
+        all_groups = await self.get_all_groups()
+        all_groups = [student_group for student_group in all_groups]
+
+        # TODO: add for developer role
+        if user.role_id in (2, 3):
+            student = await self.get_student_by_username(username)
+            student_group = await self.get_group_by_student_id(student_id=student.id)
+            return BasicData(
+                user=user,
+                role_name=role_name,
+                all_groups=all_groups,
+                student=student,
+                student_group=student_group
+            )
+        else:
+            teacher = await self.get_teacher_by_username(username)
+            return BasicData(
+                user=user,
+                role_name=role_name,
+                all_groups=all_groups,
+                teacher=teacher
+            )
+
+    async def update_name_by_username(self, username: str, new_name: str, connection: PoolConnectionProxy) -> None:
+        sql_query = '''
+            UPDATE users
+            SET name = $1
+            WHERE username = $2
+        '''
+        await connection.execute(sql_query, new_name, username)
+
+    async def update_additional_teacher_info(self, username: str, additional_info: AdditionalUserInfo) -> None:
+        async def update_phone(connection: PoolConnectionProxy) -> None:
+            sql_query = '''
+                UPDATE teachers
+                SET phone = $1
+                WHERE user_id = (
+                    SELECT id
+                    FROM users
+                    WHERE username = $2
+                )
+            '''
+            await connection.execute(sql_query, additional_info.phone, username)
+
+        async def update_email(connection: PoolConnectionProxy) -> None:
+            sql_query = '''
+                UPDATE teachers
+                SET email = $1
+                WHERE user_id = (
+                    SELECT id
+                    FROM users
+                    WHERE username = $2
+                )
+            '''
+            await connection.execute(sql_query, additional_info.email, username)
+
+        async with self._pool.acquire() as conn:
+            async with conn.transaction():
+                if additional_info.name:
+                    await self.update_name_by_username(username=username, new_name=additional_info.name, connection=conn)
+                if additional_info.phone:
+                    await update_phone(connection=conn)
+                if additional_info.email:
+                    await update_email(connection=conn)
+
+    async def update_additional_student_info(self, username: str, additional_info: AdditionalUserInfo) -> None:
+        async def update_student_group(connection: PoolConnectionProxy) -> None:
+            sql_query = '''
+                UPDATE students
+                SET group_id = (
+                    SELECT id
+                    FROM groups
+                    WHERE name = $1
+                )
+                WHERE user_id = (
+                   SELECT id
+                   FROM users
+                   WHERE username = $2
+                );
+            '''
+            await connection.execute(sql_query, additional_info.group_name, username)
+
+        async with self._pool.acquire() as conn:
+            async with conn.transaction():
+                if additional_info.name:
+                    await self.update_name_by_username(username=username, new_name=additional_info.name, connection=conn)
+                if additional_info.group_name:
+                    await update_student_group(connection=conn)
+
+
 
 async def main():
     db = Database()
     await db.create_pool()
-    await db.drop_all_tables()
-    await db.setup_tables()
+    # print(await db.get_all_groups_and_students())
+    # await db.drop_all_tables()
+    # await db.setup_tables()
+
+
     # user = User(name="bba", username="ggg", password="zzz", role_id=1)
-    # print(await db.get_user_by_username("ggg"))
-    print(await db.get_all_tables())
+    # print(await db.get_group_id_by_name('М8О-403Б-21'))
 
 
 if __name__ == "__main__":

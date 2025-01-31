@@ -1,23 +1,55 @@
 {% extends "basic.html" %}
 
+
+{% block edit_button %}
+<button class="user_info_element" id="edit_button" onclick="show_edit_block('edit_modal')">Редактировать</button>
+{% endblock %}
+
+
+{% block additional_userinfo %}
+<p class="user_info_element" id="student_group">Группа: {{ user_data.student_group.name }}</p>
+{% endblock %}
+
+
+{% block edit_userinfo %}
+<div id="edit_modal" style="display: none;">
+    <h2>Редактирование данных</h2>
+
+    <label class="user_info">Имя: <input type="text" id="name"></label><br>
+    <label class="user_info">Группа:
+        <select id="group_name">
+            <option value="None" selected>None</option>
+            {% for group in user_data.all_groups %}
+            <option value="{{group.name}}">{{ group.name }}</option>
+            {% endfor %}
+        </select>
+    </label><br>
+    <button id="save_button" onclick="save_userdata()">Сохранить</button>
+    <button id="close_button" onclick="hide_edit_block('edit_modal')">Закрыть</button>
+</div>
+{% endblock %}
+
+
 {% block head %}
 <link rel="stylesheet" href="{{url_for('static', path='css/student.css')}}">
 <link rel="stylesheet" href="{{url_for('static', path='css/profile.css')}}">
 {% endblock %}
+
 
 {% block main_content %}
 <div class="course_block">
     <h1>Линейная алгебра</h1>
     <h3>Лабораторные работы</h3>
     <ul>
-        {% for lab_number in range(1, student['marks']|length + 1) %}
+        {% for lab_number in range(1, user_data.student.marks|length + 1) %}
         <li id="lab_row_{{lab_number}}">
-            <p><a href="/lab{{lab_number}}" style="color: {{ 'green' if student['marks'][lab_number-1] else 'red' }};">№{{lab_number}}</a></p>
+            <p><a href="/lab{{lab_number}}" style="color: {{ 'green' if user_data.student.marks[lab_number-1] else 'red' }};">№{{lab_number}}</a></p>
         </li>
         {% endfor %}
     </ul>
 </div>
 {% endblock %}
+
 
 {% block end_scripts %}
 {% endblock %}

@@ -16,13 +16,21 @@
 
 <body>
     <header class="header_block">
+        <button class="home_button" onclick="to_profile()">Домой</button>
         <div class="user_info_block">
-            <p class="user_info_element" id="user_name">ФИО: {{ user['name'] }}</p>
-            <p class="user_info_element" id="user_login">Логин: {{ user['username'] }}</p>
-            <p class="user_info_element" id="user_role">Роль: {{ user['role_id'] }}</p>
+            <p class="user_info_element" id="user_name">ФИО: {{ user_data.user.name }}</p>
+            <p class="user_info_element" id="user_login">Логин: {{ user_data.user.username }}</p>
+            <p class="user_info_element" id="user_role">Роль: {{ user_data.role_name }}</p>
+
+            {% block additional_userinfo %}{% endblock %}
+
+            {% block edit_button %}{% endblock %}
         </div>
         <button class="logout_button" onclick="logout()">Выйти</button>
     </header>
+
+    {% block edit_userinfo %}{% endblock %}
+    {% block add_groups %}{% endblock %}
 
     <main class="main_page">
         {% block main_content %}{% endblock %}
@@ -31,9 +39,8 @@
     <footer class="footer_block">
         <div class="contacts_block">
             <h3>В случае багов можно писать в:</h3>
-            <p class="contact_data">krukrukruzhka</p>
-            <p class="contact_data">misha230503@mail.ru</p>
-            <p class="contact_data">@m_zhilin</p>
+            <p class="contact_data">email: misha230503@mail.ru</p>
+            <p class="contact_data">tg: @m_zhilin</p>
         </div>
     </footer>
 
