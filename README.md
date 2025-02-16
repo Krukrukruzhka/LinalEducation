@@ -1,8 +1,19 @@
 # LinalEducation
-Бакалаврская дипломная работа. Сайт для проверки РГР и контрольных работ по линейной алгебре.
+Бакалаврская дипломная работа
 
 ---
 
-Работу выполнили: \
-Жилин Михаил Денисович | krukrukruzhka \
-Бондарева Елена Евгеньевна | BigPanda-IT
+**LinalEducation** - сервис для сдачи РГР и курсовых работ по линейной алгебре и аналитической геометрии
+
+---
+
+### Навигация
+* [Стек](./documentation/technologies.md) 
+* [Ручки](./documentation/routes.md)
+* [FAQ](./documentation/faq.md)
+
+---
+
+### Работу выполнили:
+Жилин Михаил Денисович | [krukrukruzhka](https://github.com/Krukrukruzhka) \
+Бондарева Елена Евгеньевна | [BigPanda-IT](https://github.com/BigPanda-IT)
