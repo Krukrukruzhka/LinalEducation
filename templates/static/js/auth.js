@@ -5,7 +5,20 @@ LOGIN_URL = DOMAIN + "/login-user";
 PROFILE_URL = DOMAIN + "/profile";
 
 
-function register_user() {
+async function hashString(str) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(str);
+
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+
+    return hashHex;
+}
+
+
+async function register_user() {
     let response_dict = {};
 
     response_dict[`role_id`] = document.getElementById("input_role").value;
@@ -13,6 +26,9 @@ function register_user() {
     response_dict[`username`] = document.getElementById("input_login").value;
     response_dict[`password`] = document.getElementById("input_password").value;
     response_dict[`repeated_password`] = document.getElementById("input_repeated_password").value;
+
+    response_dict[`password`] = await hashString(response_dict[`password`]);
+    response_dict[`repeated_password`] = await hashString(response_dict[`repeated_password`]);
 
     console.log(response_dict);
 
@@ -36,7 +52,7 @@ function register_user() {
 }
 
 
-function login_user() {
+async function login_user() {
     let response_dict = {};
 
     response_dict[`username`] = document.getElementById("input_login").value;
@@ -45,6 +61,8 @@ function login_user() {
     response_dict[`scopes`] = null;
     response_dict[`client_id`] = null;
     response_dict[`client_secret`] = null;
+
+    response_dict[`password`] = await hashString(response_dict[`password`]);
 
     console.log(response_dict);
 
