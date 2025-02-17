@@ -1,3 +1,5 @@
+import json
+
 import asyncpg
 import asyncio
 
@@ -7,7 +9,8 @@ from asyncpg.pool import PoolConnectionProxy
 from src.datamodels.database_config import DatabaseConfig
 from src.datamodels.user import User, Student, Teacher, StudentGroup, RolesEnum
 from src.datamodels.labs import Lab1Request
-from src.datamodels.utils import BasicData, AdditionalUserInfo, StudentWithResults
+from src.datamodels.page_payload import BasicData
+from src.datamodels.utils import AdditionalUserInfo, StudentWithResults, StudentMark
 
 from src.algorithms import lab1
 
@@ -114,7 +117,7 @@ class Database:
                     id SERIAL PRIMARY KEY,
                     group_id INTEGER REFERENCES groups(id),
                     user_id INTEGER UNIQUE NOT NULL REFERENCES users(id),
-                    marks BOOLEAN[] NOT NULL,
+                    marks JSONB NOT NULL,
                     lab1_id INTEGER NOT NULL REFERENCES lab1(id)
                 );
             '''  # create table of students
@@ -153,6 +156,9 @@ class Database:
                 WHERE users.username = $1;
             '''
             student_row = await conn.fetchrow(sql_query, username)
+
+            student_row = dict(student_row)
+            student_row["marks"] = json.loads(student_row["marks"])
             if student_row is not None:
                 student_row = Student(**student_row)
             return student_row
@@ -198,7 +204,8 @@ class Database:
                     ($1, $2, $3)
                 RETURNING id;
             """
-            marks = [False for _ in range(LABS_COUNT)]
+            marks = [{"result": False, "approve_date": None} for _ in range(LABS_COUNT)]
+            marks = json.dumps(marks)
             student_row = await conn.fetchrow(sql_query, user_id, marks, lab1_id)
             return student_row.get('id')
 
@@ -222,7 +229,8 @@ class Database:
                     lab1_id = await generate_lab1()
                     student_id = await add_new_student(user_id, lab1_id, conn)
 
-    async def update_user_marks(self, username: str, new_marks: list[bool]) -> None:
+    async def update_user_marks(self, username: str, new_marks: list[StudentMark]) -> None:
+        new_marks = json.dumps([mark_model.model_dump() for mark_model in new_marks])
         async with self._pool.acquire() as conn:
             sql_query = '''
                UPDATE students
@@ -291,8 +299,9 @@ class Database:
                     groups_and_students[group_name] = []
 
                 if marks:
+                    marks = json.loads(marks)
                     groups_and_students[group_name].append(
-                        StudentWithResults(name=student_name, marks=marks, total_result=sum(marks))
+                        StudentWithResults(name=student_name, marks=marks, total_result=sum([1 if mark_model["result"] else 0 for mark_model in marks]))
                     )
 
         groups_and_students = sorted(groups_and_students.items(), key=lambda x: x[0])[::-1]

@@ -67,7 +67,7 @@
                     <td>{{student_with_res.total_result}}/12</td>
 
                     {% for mark in student_with_res.marks %}
-                    <td>{% if mark %} + {% else %} - {% endif %}</td>
+                    <td>{% if mark.result %} + {% else %} - {% endif %}</td>
                     {% endfor %}
                 </tr>
                 {% endfor %}

@@ -1,3 +1,4 @@
+import datetime
 import logging
 from typing import Any
 
@@ -51,9 +52,10 @@ async def check_lab1(request: Request, user_answer: Lab1Response, token: str = D
 
     is_correct_answer = lab1.check_lab(condition=variant, user_answer=user_answer)
 
-    if is_correct_answer:  # TODO: if two requests arrive at the same time, the score may get lost
-        marks = current_student.marks
-        marks[0] = True
+    marks = current_student.marks
+    if is_correct_answer and not marks[0].result:  # TODO: if two requests from different labs arrive at the same time, the score may get lost
+        marks[0].result = True
+        marks[0].approve_date = str(datetime.datetime.now().date())
         await app_settings.database.update_user_marks(username=username, new_marks=marks)
 
     return {

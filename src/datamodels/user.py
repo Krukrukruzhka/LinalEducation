@@ -1,6 +1,7 @@
 from typing import Optional
-
 from pydantic import BaseModel
+
+from src.datamodels.utils import StudentMark
 
 
 class User(BaseModel):
@@ -22,7 +23,7 @@ class Student(BaseModel):
     id: Optional[int] = None
     group_id: Optional[int] = None
     user_id: int
-    marks: list[bool]
+    marks: list[StudentMark]
 
 
 class StudentGroup(BaseModel):
