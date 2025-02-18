@@ -1,10 +1,10 @@
 import numpy as np
 import random
 
-from src.datamodels.labs import Lab1Request, Lab1Response
+from src.datamodels.labs import LinalLab1Request, LinalLab1Response
 
 
-def generate_variant() -> Lab1Request:
+def generate_variant() -> LinalLab1Request:
     a_n, a_m = 3, 2
     b_n, b_m = 2, 3
     alpha, beta = 0, 0
@@ -18,10 +18,10 @@ def generate_variant() -> Lab1Request:
     A = [[random.randint(-9, 9) for _ in range(a_n)] for _ in range(a_m)]
     B = [[random.randint(-9, 9) for _ in range(b_n)] for _ in range(b_m)]
 
-    return Lab1Request(matrix_a = A, matrix_b = B, alpha = alpha, beta = beta)
+    return LinalLab1Request(matrix_a = A, matrix_b = B, alpha = alpha, beta = beta)
 
 
-def check_lab(condition: Lab1Request, user_answer: Lab1Response) -> bool:
+def check_lab(condition: LinalLab1Request, user_answer: LinalLab1Response) -> bool:
     alpha, beta = condition.alpha, condition.beta
     A, B = np.matrix(condition.matrix_a), np.matrix(condition.matrix_b)
 

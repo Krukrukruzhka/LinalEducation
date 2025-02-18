@@ -8,11 +8,11 @@ from asyncpg.pool import PoolConnectionProxy
 
 from config.database_config import DatabaseConfig
 from src.datamodels.user import User, Student, Teacher, StudentGroup, RolesEnum
-from src.datamodels.labs import Lab1Request
+from src.datamodels.labs import LinalLab1Request
 from src.datamodels.page_payload import BasicData
 from src.datamodels.utils import AdditionalUserInfo, StudentWithResults, StudentMark
 
-from src.algorithms import lab1
+from src.algorithms import linear_algebra
 
 
 LABS_COUNT = 12
@@ -210,7 +210,7 @@ class Database:
             return student_row.get('id')
 
         async def generate_lab1() -> int:
-            variant = lab1.generate_variant()
+            variant = linear_algebra.lab1.generate_variant()
             sql_query = """ 
                 INSERT INTO lab1 (matrix_a, matrix_b, alpha, beta)
                 VALUES
@@ -243,7 +243,7 @@ class Database:
             '''
             await conn.execute(sql_query, new_marks, username)
 
-    async def load_lab1_variant(self, student_id: int) -> Optional[Lab1Request]:
+    async def load_lab1_variant(self, student_id: int) -> Optional[LinalLab1Request]:
         async with self._pool.acquire() as conn:
             sql_query = '''
                 SELECT lab1.*
@@ -253,7 +253,7 @@ class Database:
             '''
             variant_row = await conn.fetchrow(sql_query, student_id)
             if variant_row is not None:
-                variant = Lab1Request(**variant_row)
+                variant = LinalLab1Request(**variant_row)
             else:
                 raise Exception  # TODO: change to correct exception and handle it in routes
             return variant

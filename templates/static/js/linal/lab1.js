@@ -1,6 +1,6 @@
 DOMAIN = "";
 
-const URL = DOMAIN + "/lab1/check";
+const URL = DOMAIN + "/linal/lab1/check";
 
 
 function show_verdict(verdict) {

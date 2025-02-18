@@ -4,7 +4,7 @@ from app.routes import (
     root,
     auth,
     api,
-    lab1
+    linal_routes
 )
 
 
@@ -12,4 +12,4 @@ main_router = APIRouter()
 main_router.include_router(auth.router)
 main_router.include_router(root.router)
 main_router.include_router(api.router)
-main_router.include_router(lab1.router)
+main_router.include_router(linal_routes.router)

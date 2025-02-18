@@ -50,7 +50,7 @@
         <tbody>
             {% for lab_number in range(1, user_data.student.marks|length + 1) %}
             <tr>
-                <th><a href="/lab{{lab_number}}">Задача №{{lab_number}}</a></th>
+                <th><a href="/linal/lab{{lab_number}}">Задача №{{lab_number}}</a></th>
                 <th>{{ user_data.student.marks[lab_number-1].approve_date }}</th>
                 <th>None</th>
             </tr>

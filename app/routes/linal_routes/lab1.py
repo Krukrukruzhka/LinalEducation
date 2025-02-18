@@ -6,8 +6,8 @@ from fastapi import APIRouter, Request
 from fastapi import Depends
 
 from config.application import app_settings
-from src.algorithms import lab1
-from src.datamodels.labs import Lab1Response
+from src.algorithms import linear_algebra
+from src.datamodels.labs import LinalLab1Response
 from src.utils.auth_utils import get_username_by_jwt, get_token_from_cookie
 
 
@@ -42,7 +42,7 @@ async def get_lab1_page(request: Request, token: str = Depends(get_token_from_co
 
 
 @router.post("/check", tags=["checker"])
-async def check_lab1(request: Request, user_answer: Lab1Response, token: str = Depends(get_token_from_cookie)) -> dict[str, Any]:
+async def check_lab1(request: Request, user_answer: LinalLab1Response, token: str = Depends(get_token_from_cookie)) -> dict[str, Any]:
     username = get_username_by_jwt(token)
     current_student = await app_settings.database.get_student_by_username(username)
     if current_student is None:
@@ -50,7 +50,7 @@ async def check_lab1(request: Request, user_answer: Lab1Response, token: str = D
 
     variant = await app_settings.database.load_lab1_variant(student_id=current_student.id)
 
-    is_correct_answer = lab1.check_lab(condition=variant, user_answer=user_answer)
+    is_correct_answer = linear_algebra.lab1.check_lab(condition=variant, user_answer=user_answer)
 
     marks = current_student.marks
     if is_correct_answer and not marks[0].result:  # TODO: if two requests from different labs arrive at the same time, the score may get lost
