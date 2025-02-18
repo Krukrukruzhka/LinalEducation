@@ -1,4 +1,5 @@
 import json
+import logging
 
 import asyncpg
 import asyncio
@@ -16,6 +17,7 @@ from src.algorithms import linear_algebra
 
 
 LABS_COUNT = 12
+logger = logging.getLogger()
 
 
 class Database:
@@ -62,6 +64,17 @@ class Database:
             await conn.execute('SET session_replication_role = DEFAULT;')
 
     async def setup_tables(self) -> None:
+        async def is_exists_roles_table(connection: PoolConnectionProxy) -> bool:
+            query = """
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_schema = 'public'
+                    AND table_name = 'roles'
+                );
+                """
+            result = await conn.fetchval(query)
+            return True if result else False
+
         async def create_all_tables(connection: PoolConnectionProxy):
             sql_query = ''' 
                 CREATE TABLE IF NOT EXISTS roles (
@@ -133,8 +146,13 @@ class Database:
 
         async with self._pool.acquire() as conn:
             async with conn.transaction():
-                await create_all_tables(conn)
-                await fill_all_tables_by_default(conn)
+                if not await is_exists_roles_table(conn):
+                    await create_all_tables(conn)
+                    await fill_all_tables_by_default(conn)
+                    logger.info("Tables has been created")
+                else:
+                    logger.info("Tables are exist")
+
 
     async def get_user_by_username(self, username: str) -> Optional[User]:
         async with self._pool.acquire() as conn:
