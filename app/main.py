@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 import logging
 import logging.handlers
 import os
@@ -12,10 +13,11 @@ from pathlib import Path
 from loguru import logger as loguru_logger
 
 from app.application import create_app
+from database_pg.database import Database
 from src.utils.arguments_parsing import enrich_parser
-from src.datamodels.configs import Config
+from config.configs import Config
 from config.application import app_settings
-from src.utils.constants import LOCAL_ENV
+from src.utils.constants import LOCAL_ENV, DOCKER_ENV
 from config.app_config import init_app_config
 
 
@@ -75,7 +77,7 @@ class LoguruHandler(logging.Handler):
 
 
 def configurate_loggers(env_mode: str):
-    if env_mode == LOCAL_ENV:
+    if env_mode in (LOCAL_ENV, DOCKER_ENV):
         terminal_common_handler = LoguruHandler()
         file_common_handler = NullHandler()
         file_exception_handler = NullHandler()
@@ -121,7 +123,8 @@ def start_app():
     env_mode = os.getenv("APPLICATION_ENV", None) or getattr(args, 'mode', None)
     logging.root.setLevel(LOG_LEVEL)
 
-    init_app_config(env_mode=env_mode, app_config=app_settings.app_config)
+    init_app_config(env_mode=env_mode, app_config=app_settings.app_config, db_config=app_settings.db_config)
+    app_settings.database = Database(db_config=app_settings.db_config)
 
     configurate_loggers(env_mode=env_mode)
     logger.debug(f"Using args: {args}")

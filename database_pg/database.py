@@ -6,7 +6,7 @@ import asyncio
 from typing import Optional
 from asyncpg.pool import PoolConnectionProxy
 
-from src.datamodels.database_config import DatabaseConfig
+from config.database_config import DatabaseConfig
 from src.datamodels.user import User, Student, Teacher, StudentGroup, RolesEnum
 from src.datamodels.labs import Lab1Request
 from src.datamodels.page_payload import BasicData
@@ -19,8 +19,8 @@ LABS_COUNT = 12
 
 
 class Database:
-    def __init__(self):
-        self.config = dict(DatabaseConfig())
+    def __init__(self, db_config: DatabaseConfig | dict):
+        self.config = dict(db_config)
         self._pool = None
 
     def get_pool(self):
@@ -429,7 +429,16 @@ class Database:
 
 
 async def main():
-    db = Database()
+    db_config = {
+        "user": 'krukrukruzhka',
+        "password": 'password',
+        "database": 'LinalEducation',
+        "host": 'localhost',
+        "port": '5432',
+        "min_size": 20,
+        "max_size": 20
+    }
+    db = Database(db_config=db_config)
     await db.create_pool()
     # print(await db.get_all_groups_and_students())
     # await db.drop_all_tables()

@@ -2,7 +2,8 @@ from pydantic import BaseModel
 
 from fastapi.templating import Jinja2Templates
 
-from src.datamodels.configs import Config
+from config.configs import Config
+from config.database_config import DatabaseConfig
 from database_pg.database import Database
 
 
@@ -16,4 +17,5 @@ class UISettings(BaseModel):
 class ApplicationSettings:
     app_config = Config()
     ui = UISettings()
-    database = Database()
+    db_config = DatabaseConfig()
+    database: Database = None
