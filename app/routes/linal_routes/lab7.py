@@ -7,12 +7,12 @@ from fastapi import Depends
 
 from config.application import app_settings
 from src.algorithms import linear_algebra
-from src.datamodels.labs import LinalLab1Response
+from src.datamodels.labs import LinalLab7Response
 from src.utils.auth_utils import get_username_by_jwt, get_token_from_cookie
 
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/lab1", tags=["protected"])
+router = APIRouter(prefix="/lab7", tags=["protected"])
 
 
 @router.get("/", tags=["html"])
@@ -42,7 +42,7 @@ async def get_lab1_page(request: Request, token: str = Depends(get_token_from_co
 
 
 @router.post("/check", tags=["checker"])
-async def check_lab1(request: Request, user_answer: LinalLab1Response, token: str = Depends(get_token_from_cookie)) -> dict[str, Any]:
+async def check_lab1(request: Request, user_answer: LinalLab7Response, token: str = Depends(get_token_from_cookie)) -> dict[str, Any]:
     username = get_username_by_jwt(token)
     current_student = await app_settings.database.get_student_by_username(username)
     if current_student is None:
