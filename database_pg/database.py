@@ -9,7 +9,7 @@ from asyncpg.pool import PoolConnectionProxy
 
 from config.database_config import DatabaseConfig
 from src.datamodels.user import User, Student, Teacher, StudentGroup, RolesEnum
-from src.datamodels.labs import LinalLab1Request
+from src.datamodels.labs import LinalLab1Request, LinalLab7Request
 from src.datamodels.page_payload import BasicData
 from src.datamodels.utils import AdditionalUserInfo, StudentWithResults, StudentMark
 
@@ -115,14 +115,23 @@ class Database:
             await connection.execute(sql_query)
 
             sql_query = ''' 
-                CREATE TABLE IF NOT EXISTS lab1 (
+                CREATE TABLE IF NOT EXISTS linal_lab1 (
                     id SERIAL PRIMARY KEY,
                     alpha INTEGER NOT NULL,
                     beta INTEGER NOT NULL,
                     matrix_a INTEGER[][] NOT NULL,
                     matrix_b INTEGER[][] NOT NULL
                 );
-            '''  # create table of lab1
+            '''  # create table of linal_lab1
+            await connection.execute(sql_query)
+
+            sql_query = ''' 
+                CREATE TABLE IF NOT EXISTS linal_lab7 (
+                    id SERIAL PRIMARY KEY,
+                    matrix_a INTEGER[][] NOT NULL,
+                    matrix_b INTEGER[][] NOT NULL
+                );
+            '''  # create table of linal_lab7
             await connection.execute(sql_query)
 
             sql_query = ''' 
@@ -131,7 +140,8 @@ class Database:
                     group_id INTEGER REFERENCES groups(id),
                     user_id INTEGER UNIQUE NOT NULL REFERENCES users(id),
                     marks JSONB NOT NULL,
-                    lab1_id INTEGER NOT NULL REFERENCES lab1(id)
+                    linal_lab1_id INTEGER NOT NULL REFERENCES linal_lab1(id),
+                    linal_lab7_id INTEGER NOT NULL REFERENCES linal_lab7(id)
                 );
             '''  # create table of students
             await connection.execute(sql_query)
@@ -195,6 +205,29 @@ class Database:
             return teacher_row
 
     async def registrate_user(self, user: User):
+        async def generate_linal_lab1() -> int:
+            variant = linear_algebra.lab1.generate_variant()
+            sql_query = """ 
+                INSERT INTO linal_lab1 (matrix_a, matrix_b, alpha, beta)
+                VALUES
+                    ($1, $2, $3, $4)
+                RETURNING id;
+            """
+            linal_lab1_row = await conn.fetchrow(sql_query, variant.matrix_a, variant.matrix_b, variant.alpha,
+                                                 variant.beta)
+            return linal_lab1_row.get('id')
+
+        async def generate_linal_lab7() -> int:
+            variant = linear_algebra.lab7.generate_variant()
+            sql_query = """ 
+                INSERT INTO linal_lab7 (matrix_a, matrix_b)
+                VALUES
+                    ($1, $2)
+                RETURNING id;
+            """
+            linal_lab7_row = await conn.fetchrow(sql_query, variant.matrix_a, variant.matrix_b)
+            return linal_lab7_row.get('id')
+
         async def add_new_user(user: User, conn: PoolConnectionProxy) -> int:
             sql_query = """ 
                 INSERT INTO users (name, username, password, role_id)
@@ -215,28 +248,23 @@ class Database:
             teacher_row = await conn.fetchrow(sql_query, user_id)
             return teacher_row.get('id')
 
-        async def add_new_student(user_id: int, lab1_id: int, conn: PoolConnectionProxy) -> int:
+        async def add_new_student(user_id: int, conn: PoolConnectionProxy) -> int:
             sql_query = """ 
-                INSERT INTO students (user_id, marks, lab1_id)
-                VALUES
-                    ($1, $2, $3)
-                RETURNING id;
-            """
-            marks = [{"result": False, "approve_date": None} for _ in range(LABS_COUNT)]
-            marks = json.dumps(marks)
-            student_row = await conn.fetchrow(sql_query, user_id, marks, lab1_id)
-            return student_row.get('id')
-
-        async def generate_lab1() -> int:
-            variant = linear_algebra.lab1.generate_variant()
-            sql_query = """ 
-                INSERT INTO lab1 (matrix_a, matrix_b, alpha, beta)
+                INSERT INTO students (user_id, marks, linal_lab1_id, linal_lab7_id)
                 VALUES
                     ($1, $2, $3, $4)
                 RETURNING id;
             """
-            lab1_row = await conn.fetchrow(sql_query, variant.matrix_a, variant.matrix_b, variant.alpha, variant.beta)
-            return lab1_row.get('id')
+            marks = [{"result": False, "approve_date": None} for _ in range(LABS_COUNT)]
+            marks = json.dumps(marks)
+            linal_lab1_id = await generate_linal_lab1()
+            linal_lab7_id = await generate_linal_lab7()
+            student_row = await conn.fetchrow(
+                sql_query, user_id, marks,
+                linal_lab1_id,
+                linal_lab7_id
+            )
+            return student_row.get('id')
 
         async with self._pool.acquire() as conn:
             async with conn.transaction():
@@ -244,8 +272,7 @@ class Database:
                 if user.role_id == RolesEnum.TEACHER.id:
                     teacher_id = await add_new_teacher(user_id, conn)
                 elif user.role_id in (RolesEnum.STUDENT.id, RolesEnum.LEADER.id):
-                    lab1_id = await generate_lab1()
-                    student_id = await add_new_student(user_id, lab1_id, conn)
+                    student_id = await add_new_student(user_id, conn)
 
     async def update_user_marks(self, username: str, new_marks: list[StudentMark]) -> None:
         new_marks = json.dumps([mark_model.model_dump() for mark_model in new_marks])
@@ -261,17 +288,32 @@ class Database:
             '''
             await conn.execute(sql_query, new_marks, username)
 
-    async def load_lab1_variant(self, student_id: int) -> Optional[LinalLab1Request]:
+    async def load_linal_lab1_variant(self, student_id: int) -> Optional[LinalLab1Request]:
         async with self._pool.acquire() as conn:
             sql_query = '''
-                SELECT lab1.*
+                SELECT linal_lab1.*
                 FROM students
-                JOIN lab1 ON lab1.id = students.lab1_id
+                JOIN linal_lab1 ON linal_lab1.id = students.linal_lab1_id
                 WHERE students.id = $1;
             '''
             variant_row = await conn.fetchrow(sql_query, student_id)
             if variant_row is not None:
                 variant = LinalLab1Request(**variant_row)
+            else:
+                raise Exception  # TODO: change to correct exception and handle it in routes
+            return variant
+
+    async def load_linal_lab7_variant(self, student_id: int) -> Optional[LinalLab1Request]:
+        async with self._pool.acquire() as conn:
+            sql_query = '''
+                SELECT linal_lab7.*
+                FROM students
+                JOIN linal_lab7 ON linal_lab7.id = students.linal_lab7_id
+                WHERE students.id = $1;
+            '''
+            variant_row = await conn.fetchrow(sql_query, student_id)
+            if variant_row is not None:
+                variant = LinalLab7Request(**variant_row)
             else:
                 raise Exception  # TODO: change to correct exception and handle it in routes
             return variant
@@ -459,8 +501,8 @@ async def main():
     db = Database(db_config=db_config)
     await db.create_pool()
     # print(await db.get_all_groups_and_students())
-    # await db.drop_all_tables()
-    # await db.setup_tables()
+    await db.drop_all_tables()
+    await db.setup_tables()
 
     # user = User(name="bba", username="ggg", password="zzz", role_id=1)
     # print(await db.get_group_id_by_name('М8О-403Б-21'))

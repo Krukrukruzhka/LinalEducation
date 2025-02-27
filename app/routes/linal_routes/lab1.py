@@ -28,13 +28,12 @@ async def get_lab1_page(request: Request, token: str = Depends(get_token_from_co
     if current_student is None:
         raise Exception("Maybe you not a student")  # TODO: change to correct HTTPException
 
-    variant = await app_settings.database.load_lab1_variant(student_id=current_student.id)
-
+    variant = await app_settings.database.load_linal_lab1_variant(student_id=current_student.id)
     web_context = {
         "request": request,
         "variant": variant.dict(),
         "user": current_user,
-        "is_solved": current_student.marks[0],
+        "is_solved": current_student.marks[0].result,
         "user_data": user_data
     }
 
@@ -48,7 +47,7 @@ async def check_lab1(request: Request, user_answer: LinalLab1Response, token: st
     if current_student is None:
         raise Exception("Maybe you not a student")  # TODO: change to correct HTTPException
 
-    variant = await app_settings.database.load_lab1_variant(student_id=current_student.id)
+    variant = await app_settings.database.load_linal_lab1_variant(student_id=current_student.id)
 
     is_correct_answer = linear_algebra.lab1.check_lab(condition=variant, user_answer=user_answer)
 
