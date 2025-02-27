@@ -29,7 +29,7 @@ class Student(BaseModel):
 class StudentGroup(BaseModel):
     id: Optional[int] = None
     name: str
-    teacher_id: int
+    teacher_id: Optional[int] = None
 
 
 class UserRole(BaseModel):

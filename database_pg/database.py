@@ -109,7 +109,7 @@ class Database:
                 CREATE TABLE IF NOT EXISTS groups (
                     id SERIAL PRIMARY KEY,
                     name TEXT UNIQUE NOT NULL,
-                    teacher_id INTEGER NOT NULL REFERENCES teachers(id)
+                    teacher_id INTEGER REFERENCES teachers(id)
                 );
             '''  # create table of groups
             await connection.execute(sql_query)
@@ -154,6 +154,13 @@ class Database:
             '''  # fill roles
             await connection.execute(sql_query)
 
+            sql_query = f''' 
+                INSERT INTO groups (name)
+                VALUES
+                    ('None');
+            '''
+            await connection.execute(sql_query)
+
         async with self._pool.acquire() as conn:
             async with conn.transaction():
                 if not await is_exists_roles_table(conn):
@@ -162,7 +169,6 @@ class Database:
                     logger.info("Tables has been created")
                 else:
                     logger.info("Tables are exist")
-
 
     async def get_user_by_username(self, username: str) -> Optional[User]:
         async with self._pool.acquire() as conn:
@@ -250,9 +256,9 @@ class Database:
 
         async def add_new_student(user_id: int, conn: PoolConnectionProxy) -> int:
             sql_query = """ 
-                INSERT INTO students (user_id, marks, linal_lab1_id, linal_lab7_id)
+                INSERT INTO students (user_id, marks, group_id, linal_lab1_id, linal_lab7_id)
                 VALUES
-                    ($1, $2, $3, $4)
+                    ($1, $2, $3, $4, $5)
                 RETURNING id;
             """
             marks = [{"result": False, "approve_date": None} for _ in range(LABS_COUNT)]
@@ -260,7 +266,7 @@ class Database:
             linal_lab1_id = await generate_linal_lab1()
             linal_lab7_id = await generate_linal_lab7()
             student_row = await conn.fetchrow(
-                sql_query, user_id, marks,
+                sql_query, user_id, marks, 1,
                 linal_lab1_id,
                 linal_lab7_id
             )
