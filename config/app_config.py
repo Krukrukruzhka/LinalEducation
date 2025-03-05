@@ -3,7 +3,7 @@ import os
 
 from config.configs import Config
 from config.database_config import DatabaseConfig
-from src.utils.constants import REMOTE_ENV, LOCAL_ENV, DOCKER_ENV
+from src.utils.constants import REMOTE_ENV, LOCAL_ENV, DOCKER_ENV, WINDOWS_ENV
 
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,13 @@ def init_app_config(env_mode: str, app_config: Config, db_config: DatabaseConfig
         db_config.host = "db"
         app_config.max_requests = 100
         app_config.workers = 1
+    elif env_mode == WINDOWS_ENV:
+        app_config.max_requests = 100
+        app_config.workers = 1
+        app_config.log_path = "linal_logs/"
+        app_config.template_path = "templates"
+        app_config.port = 8000
     else:
-        raise RuntimeError(f"Unexpected APPLICATION_ENV value {env_mode}. Use {REMOTE_ENV}, {LOCAL_ENV} or {DOCKER_ENV}.")
+        raise RuntimeError(f"Unexpected APPLICATION_ENV value {env_mode}. Use {REMOTE_ENV}, {LOCAL_ENV}, {DOCKER_ENV} or {WINDOWS_ENV}.")
 
     logger.debug(f"Using application config: {app_config}")

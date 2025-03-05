@@ -9,7 +9,7 @@ from functools import partial
 from app.router import main_router
 from config.application import activate_application_settings, deactivate_application_settings
 from config.application import app_settings
-from src.utils.constants import LOCAL_ENV
+from src.utils.constants import LOCAL_ENV, WINDOWS_ENV
 from src.middleware.redirect import RedirectMiddleware
 
 
@@ -30,7 +30,7 @@ def create_app(
     lifespan = partial(lifespan_template, env_mode=env_mode)
 
     app = FastAPI(
-        debug=bool(env_mode == LOCAL_ENV),
+        debug=bool(env_mode == LOCAL_ENV or env_mode == WINDOWS_ENV),
         title='Linear Algebra',
         lifespan=lifespan,
         redirect_slashes=True,
