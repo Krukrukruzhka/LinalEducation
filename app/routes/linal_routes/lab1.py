@@ -16,7 +16,7 @@ router = APIRouter(prefix="/lab1", tags=["protected"])
 
 
 @router.get("/", tags=["html"])
-async def get_lab1_page(request: Request, token: str = Depends(get_token_from_cookie)):
+async def get_lab_page(request: Request, token: str = Depends(get_token_from_cookie)):
     templates = app_settings.ui.templates
 
     username = get_username_by_jwt(token)
@@ -41,7 +41,7 @@ async def get_lab1_page(request: Request, token: str = Depends(get_token_from_co
 
 
 @router.post("/check", tags=["checker"])
-async def check_lab1(request: Request, user_answer: LinalLab1Response, token: str = Depends(get_token_from_cookie)) -> dict[str, Any]:
+async def check_lab(request: Request, user_answer: LinalLab1Response, token: str = Depends(get_token_from_cookie)) -> dict[str, Any]:
     username = get_username_by_jwt(token)
     current_student = await app_settings.database.get_student_by_username(username)
     if current_student is None:
