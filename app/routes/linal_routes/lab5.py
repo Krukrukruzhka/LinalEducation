@@ -6,14 +6,14 @@ from fastapi import Depends
 
 from config.application import app_settings
 from src.algorithms import linal
-from src.datamodels.labs import LinalLab7Response
+from src.datamodels.labs import LinalLab5Response
 from src.utils.auth_utils import get_token_from_cookie
 
 from src.utils import rout_utils
 
 
-LAB_NUMBER = 7
-CurrentLabResponse = LinalLab7Response
+LAB_NUMBER = 5
+CurrentLabResponse = LinalLab5Response
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix=f"/lab{LAB_NUMBER}", tags=["protected"])
@@ -26,7 +26,7 @@ async def get_lab_page(request: Request, token: str = Depends(get_token_from_coo
         token=token,
         lab_number=LAB_NUMBER,
         course_name="linal",
-        load_variant_func=app_settings.database.load_linal_lab7_variant
+        load_variant_func=app_settings.database.load_linal_lab5_variant
     )
 
 
@@ -36,7 +36,7 @@ async def check_lab(request: Request, user_answer: CurrentLabResponse, token: st
         user_answer=user_answer,
         token=token,
         lab_number=LAB_NUMBER,
-        load_variant_func=app_settings.database.load_linal_lab7_variant,
-        check_lab_func=linal.lab7.check_lab,
+        load_variant_func=app_settings.database.load_linal_lab5_variant,
+        check_lab_func=linal.lab5.check_lab,
         course_name="linal"
     )

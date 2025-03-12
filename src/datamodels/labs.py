@@ -12,19 +12,19 @@ class LinalLab1Response(BaseModel):
     answer_matrix: list[list[int]]
 
 
-class LinalLab7Request(BaseModel):
+class LinalLab4Request(BaseModel):
     matrix_a: list[list[int]]
     matrix_b: list[list[int]]
 
 
-class LinalLab7Response(BaseModel):
+class LinalLab4Response(BaseModel):
     answer_matrix_det: int
 
 
-class LinalLab8Request(BaseModel):
+class LinalLab5Request(BaseModel):
     matrix_a: list[list[int]]
 
 
-class LinalLab8Response(BaseModel):
+class LinalLab5Response(BaseModel):
     step_1: list[int]
     step_2: int

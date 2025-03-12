@@ -1,10 +1,10 @@
 import numpy as np
 import random
 
-from src.datamodels.labs import LinalLab7Request, LinalLab7Response
+from src.datamodels.labs import LinalLab4Request, LinalLab4Response
 
 
-def generate_variant() -> LinalLab7Request:
+def generate_variant() -> LinalLab4Request:
     a_n, a_m = 2, 2
     b_n, b_m = 2, 2
 
@@ -24,10 +24,10 @@ def generate_variant() -> LinalLab7Request:
                 k = random.randint(-9, 9)
             row.append(k)
 
-    return LinalLab7Request(matrix_a = A, matrix_b = B)
+    return LinalLab4Request(matrix_a = A, matrix_b = B)
 
 
-def check_lab(condition: LinalLab7Request, user_answer: LinalLab7Response) -> bool:
+def check_lab(condition: LinalLab4Request, user_answer: LinalLab4Response) -> bool:
     A, B = np.matrix(condition.matrix_a), np.matrix(condition.matrix_b)
 
     correct_answer = (A[0, 0] * A[1, 1] - A[1, 0] * A[0, 1]) * (B[0, 0] * B[1, 1] - B[1, 0] * B[0, 1])
