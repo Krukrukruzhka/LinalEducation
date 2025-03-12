@@ -4,10 +4,9 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from calendar import timegm
 
+from src.utils.constants import AUTH_SECRET_KEY, AUTH_HASH_ALGORITHM, ACCESS_TOKEN_EXPIRE_DAYS
 
-SECRET_KEY = "SECRET"  # TODO: add to .env
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_DAYS = 7
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -23,13 +22,13 @@ def create_access_token(data: dict):
     to_encode = data.copy()
     expire = datetime.now() + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, AUTH_SECRET_KEY, algorithm=AUTH_HASH_ALGORITHM)
     return encoded_jwt
 
 
 def decode_token(token: str):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, AUTH_SECRET_KEY, algorithms=[AUTH_HASH_ALGORITHM])
         if timegm(datetime.now().utctimetuple()) > payload.get('exp'):
             raise JWTError
         return payload
