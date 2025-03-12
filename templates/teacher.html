@@ -50,7 +50,7 @@
                 <th colspan="12">Работы</th>
             </tr>
             <tr>
-                {% for lab_number in range(1, 13) %}
+                {% for lab_number in range(1, linal_labs_count + 1) %}
                 <th>Работа {{lab_number}}</th>
                 {% endfor %}
             </tr>
@@ -64,9 +64,9 @@
                 <tr>
                     <td>{{student_with_res.name}}</td>
 
-                    <td>{{student_with_res.total_result}}/12</td>
+                    <td>{{student_with_res.total_linal_result}}/{{linal_labs_count}}</td>
 
-                    {% for mark in student_with_res.marks %}
+                    {% for mark in student_with_res.linal_marks %}
                     <td>{% if mark.result %} + <br> {{mark.approve_date}} {% else %} - {% endif %}</td>
                     {% endfor %}
                 </tr>
@@ -75,6 +75,44 @@
         </tbody>
     </table>
 </div>
+
+<div class="course_block">
+    <h1>Аналитическая геометрия</h1>
+    <h3>Лабораторные работы</h3>
+    <table>
+        <thead>
+            <tr>
+                <th rowspan="2">Имя студента</th>
+                <th rowspan="2">Общий результат</th>
+                <th colspan="12">Работы</th>
+            </tr>
+            <tr>
+                {% for lab_number in range(1, angem_labs_count + 1) %}
+                <th>Работа {{lab_number}}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for group_name, students in all_groups_and_students %}
+            <tr>
+                <td class="group-name" colspan="14"><br>{{group_name}}</td>
+            </tr>
+                {% for student_with_res in students %}
+                <tr>
+                    <td>{{student_with_res.name}}</td>
+
+                    <td>{{student_with_res.total_angem_result}}/{{angem_labs_count}}</td>
+
+                    {% for mark in student_with_res.angem_marks %}
+                    <td>{% if mark.result %} + <br> {{mark.approve_date}} {% else %} - {% endif %}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
 <button class="add_groups_button" onclick="show_edit_block('add_groups')">Добавить новые группы</button>
 {% endblock %}
 

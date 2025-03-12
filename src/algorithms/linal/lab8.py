@@ -50,6 +50,5 @@ def check_lab(condition: LinalLab8Request, user_answer: LinalLab8Response) -> bo
         "step_1": [a_det, b_det, c_det, d_det],
         "step_2": round(np.linalg.det(A))
     }
-    print(correct_answer)
-    print(user_answer.model_dump())
+
     return correct_answer == user_answer.model_dump()

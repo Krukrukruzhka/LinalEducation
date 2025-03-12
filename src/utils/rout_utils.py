@@ -28,6 +28,13 @@ async def get_lab_page_utils(
     current_student = user_data.student
     current_user = user_data.user
 
+    if course_name == "linal":
+        is_solved = current_student.linal_marks[lab_number - 1].result
+    elif course_name == "angem":
+        is_solved = current_student.angem_marks[lab_number - 1].result
+    else:
+        raise Exception("Unknown course")
+
     if current_student is None:
         raise Exception("Maybe you not a student")  # TODO: change to correct HTTPException
 
@@ -36,7 +43,7 @@ async def get_lab_page_utils(
         "request": request,
         "variant": variant.dict(),
         "user": current_user,
-        "is_solved": current_student.marks[lab_number - 1].result,
+        "is_solved": is_solved,
         "user_data": user_data
     }
 
@@ -48,7 +55,8 @@ async def check_lab_utils(
         token: str,
         lab_number: int,
         load_variant_func: Callable[[int], Any],
-        check_lab_func: Callable[[BaseModel, BaseModel], Any]
+        check_lab_func: Callable[[BaseModel, BaseModel], Any],
+        course_name: str
 ) -> dict[str, Any]:
 
     username = get_username_by_jwt(token)
@@ -60,10 +68,20 @@ async def check_lab_utils(
 
     is_correct_answer = check_lab_func(condition=variant, user_answer=user_answer)
 
-    marks = current_student.marks
-    if is_correct_answer and not marks[lab_number - 1].result:  # TODO: if two requests from different labs arrive at the same time, the score may get lost
-        marks[lab_number - 1].result = True
-        marks[lab_number - 1].approve_date = str(datetime.datetime.now().date())
-        await app_settings.database.update_user_marks(username=username, new_marks=marks)
+    if course_name == "linal":
+        marks = current_student.linal_marks
+        if is_correct_answer and not marks[lab_number - 1].result:  # TODO: if two requests from different labs arrive at the same time, the score may get lost
+            marks[lab_number - 1].result = True
+            marks[lab_number - 1].approve_date = str(datetime.datetime.now().date())
+            await app_settings.database.update_user_linal_marks(username=username, new_marks=marks)
+    elif course_name == "angem":
+        marks = current_student.angem_marks
+        if is_correct_answer and not marks[
+            lab_number - 1].result:  # TODO: if two requests from different labs arrive at the same time, the score may get lost
+            marks[lab_number - 1].result = True
+            marks[lab_number - 1].approve_date = str(datetime.datetime.now().date())
+            await app_settings.database.update_user_angem_marks(username=username, new_marks=marks)
+    else:
+        raise Exception("Unknown course")
 
     return {"verdict": is_correct_answer}

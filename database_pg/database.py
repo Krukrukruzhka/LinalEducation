@@ -12,11 +12,11 @@ from src.datamodels.user import User, Student, Teacher, StudentGroup, RolesEnum
 from src.datamodels.labs import LinalLab1Request, LinalLab7Request, LinalLab8Request
 from src.datamodels.page_payload import BasicData
 from src.datamodels.utils import AdditionalUserInfo, StudentWithResults, StudentMark
+from src.utils.constants import LINAL_LABS_COUNT, ANGEM_LABS_COUNT
 
-from src.algorithms import linear_algebra
+from src.algorithms import linal
 
 
-LABS_COUNT = 12
 logger = logging.getLogger()
 
 
@@ -147,7 +147,8 @@ class Database:
                     id SERIAL PRIMARY KEY,
                     group_id INTEGER REFERENCES groups(id),
                     user_id INTEGER UNIQUE NOT NULL REFERENCES users(id),
-                    marks JSONB NOT NULL,
+                    linal_marks JSONB NOT NULL,
+                    angem_marks JSONB NOT NULL,
                     linal_lab1_id INTEGER NOT NULL REFERENCES linal_lab1(id),
                     linal_lab7_id INTEGER NOT NULL REFERENCES linal_lab7(id),
                     linal_lab8_id INTEGER NOT NULL REFERENCES linal_lab8(id)
@@ -201,7 +202,8 @@ class Database:
             student_row = await conn.fetchrow(sql_query, username)
 
             student_row = dict(student_row)
-            student_row["marks"] = json.loads(student_row["marks"])
+            student_row["linal_marks"] = json.loads(student_row["linal_marks"])
+            student_row["angem_marks"] = json.loads(student_row["angem_marks"])
             if student_row is not None:
                 student_row = Student(**student_row)
             return student_row
@@ -221,7 +223,7 @@ class Database:
 
     async def registrate_user(self, user: User):
         async def generate_linal_lab1() -> int:
-            variant = linear_algebra.lab1.generate_variant()
+            variant = linal.lab1.generate_variant()
             sql_query = """ 
                 INSERT INTO linal_lab1 (matrix_a, matrix_b, alpha, beta)
                 VALUES
@@ -233,7 +235,7 @@ class Database:
             return linal_lab1_row.get('id')
 
         async def generate_linal_lab7() -> int:
-            variant = linear_algebra.lab7.generate_variant()
+            variant = linal.lab7.generate_variant()
             sql_query = """ 
                 INSERT INTO linal_lab7 (matrix_a, matrix_b)
                 VALUES
@@ -244,7 +246,7 @@ class Database:
             return linal_lab7_row.get('id')
 
         async def generate_linal_lab8() -> int:
-            variant = linear_algebra.lab8.generate_variant()
+            variant = linal.lab8.generate_variant()
             sql_query = """ 
                 INSERT INTO linal_lab8 (matrix_a)
                 VALUES
@@ -276,18 +278,20 @@ class Database:
 
         async def add_new_student(user_id: int, conn: PoolConnectionProxy) -> int:
             sql_query = """ 
-                INSERT INTO students (user_id, marks, group_id, linal_lab1_id, linal_lab7_id, linal_lab8_id)
+                INSERT INTO students (user_id, linal_marks, angem_marks, group_id, linal_lab1_id, linal_lab7_id, linal_lab8_id)
                 VALUES
-                    ($1, $2, $3, $4, $5, $6)
+                    ($1, $2, $3, $4, $5, $6, $7)
                 RETURNING id;
             """
-            marks = [{"result": False, "approve_date": None} for _ in range(LABS_COUNT)]
-            marks = json.dumps(marks)
+            linal_marks = [{"result": False, "approve_date": None} for _ in range(LINAL_LABS_COUNT)]
+            linal_marks = json.dumps(linal_marks)
+            angem_marks = [{"result": False, "approve_date": None} for _ in range(ANGEM_LABS_COUNT)]
+            angem_marks = json.dumps(angem_marks)
             linal_lab1_id = await generate_linal_lab1()
             linal_lab7_id = await generate_linal_lab7()
             linal_lab8_id = await generate_linal_lab8()
             student_row = await conn.fetchrow(
-                sql_query, user_id, marks, 1,
+                sql_query, user_id, linal_marks, angem_marks, 1,
                 linal_lab1_id,
                 linal_lab7_id,
                 linal_lab8_id
@@ -302,12 +306,26 @@ class Database:
                 elif user.role_id in (RolesEnum.STUDENT.id, RolesEnum.LEADER.id):
                     student_id = await add_new_student(user_id, conn)
 
-    async def update_user_marks(self, username: str, new_marks: list[StudentMark]) -> None:
+    async def update_user_linal_marks(self, username: str, new_marks: list[StudentMark]) -> None:
         new_marks = json.dumps([mark_model.model_dump() for mark_model in new_marks])
         async with self._pool.acquire() as conn:
             sql_query = '''
                UPDATE students
-               SET marks = $1
+               SET linal_marks = $1
+               WHERE user_id = (
+                   SELECT id
+                   FROM users
+                   WHERE username = $2
+               );
+            '''
+            await conn.execute(sql_query, new_marks, username)
+
+    async def update_user_angem_marks(self, username: str, new_marks: list[StudentMark]) -> None:
+        new_marks = json.dumps([mark_model.model_dump() for mark_model in new_marks])
+        async with self._pool.acquire() as conn:
+            sql_query = '''
+               UPDATE students
+               SET angem_marks = $1
                WHERE user_id = (
                    SELECT id
                    FROM users
@@ -386,7 +404,7 @@ class Database:
 
         async with self._pool.acquire() as conn:
             sql_query = '''
-                SELECT groups.name as group_name, users.name as student_name, students.marks as marks
+                SELECT groups.name as group_name, users.name as student_name, students.linal_marks as linal_marks, students.angem_marks as angem_marks
                 FROM students
                 JOIN users ON students.user_id = users.id
                 RIGHT JOIN groups ON students.group_id = groups.id
@@ -397,15 +415,22 @@ class Database:
             for row in rows:
                 group_name = row['group_name']
                 student_name = row['student_name']
-                marks = row['marks']
+                linal_marks = row['linal_marks']
+                angem_marks = row['angem_marks']
                 if group_name not in groups_and_students:
                     groups_and_students[group_name] = []
 
-                if marks:
-                    marks = json.loads(marks)
-                    groups_and_students[group_name].append(
-                        StudentWithResults(name=student_name, marks=marks, total_result=sum([1 if mark_model["result"] else 0 for mark_model in marks]))
+                linal_marks = json.loads(linal_marks)
+                angem_marks = json.loads(angem_marks)
+                groups_and_students[group_name].append(
+                    StudentWithResults(
+                        name=student_name,
+                        linal_marks=linal_marks,
+                        total_linal_result=sum([1 if mark_model["result"] else 0 for mark_model in linal_marks]),
+                        angem_marks=angem_marks,
+                        total_angem_result=sum([1 if mark_model["result"] else 0 for mark_model in angem_marks])
                     )
+                )
 
         groups_and_students = sorted(groups_and_students.items(), key=lambda x: x[0])[::-1]
 
