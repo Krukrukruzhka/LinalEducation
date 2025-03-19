@@ -41,21 +41,21 @@ class LinalLab4Response(BaseModel):
     answer_matrix_det: int
 
 
-class LinalLab5Request(BaseModel):
+class LinalLab6Request(BaseModel):
     matrix_a: list[list[int]]
 
 
+class LinalLab5Request(BaseModel):
+    pass
+
+
 class LinalLab5Response(BaseModel):
-    step_1: list[int]
-    step_2: int
-
-
-class LinalLab6Request(BaseModel):
     pass
 
 
 class LinalLab6Response(BaseModel):
-    pass
+    step_1: list[int]
+    step_2: int
 
 
 class LinalLab7Request(BaseModel):

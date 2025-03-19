@@ -3,13 +3,13 @@ import { show_verdict, send_response } from '../common.js';
 
 
 DOMAIN = "";
-const URL = DOMAIN + "/linal/lab5/check";
+const URL = DOMAIN + "/linal/lab6/check";
 
 
 function check_request() {
     let response_dict = {};
 
-    let step1_inputs = document.getElementsByClassName("linal_lab8_step1_input");
+    let step1_inputs = document.getElementsByClassName("linal_lab6_step1_input");
     let intValues = [];
     for (let i = 0; i < step1_inputs.length; i++) {
         let value = parseInt(step1_inputs[i].value, 10);

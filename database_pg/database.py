@@ -9,7 +9,7 @@ from asyncpg.pool import PoolConnectionProxy
 
 from config.database_config import DatabaseConfig
 from src.datamodels.user import User, Student, Teacher, StudentGroup, RolesEnum
-from src.datamodels.labs import LinalLab1Request, LinalLab3Request, LinalLab4Request, LinalLab5Request
+from src.datamodels.labs import LinalLab1Request, LinalLab3Request, LinalLab4Request, LinalLab6Request
 from src.datamodels.page_payload import BasicData
 from src.datamodels.utils import AdditionalUserInfo, StudentWithResults, StudentMark
 from src.utils.constants import LINAL_LABS_COUNT, ANGEM_LABS_COUNT
@@ -144,11 +144,11 @@ class Database:
             await connection.execute(sql_query)
 
             sql_query = ''' 
-                CREATE TABLE IF NOT EXISTS linal_lab5 (
+                CREATE TABLE IF NOT EXISTS linal_lab6 (
                     id SERIAL PRIMARY KEY,
                     matrix_a INTEGER[][] NOT NULL
                 );
-            '''  # create table of linal_lab5
+            '''  # create table of linal_lab6
             await connection.execute(sql_query)
 
             sql_query = ''' 
@@ -162,7 +162,7 @@ class Database:
                     linal_lab1_id INTEGER NOT NULL REFERENCES linal_lab1(id),
                     linal_lab3_id INTEGER NOT NULL REFERENCES linal_lab3(id),
                     linal_lab4_id INTEGER NOT NULL REFERENCES linal_lab4(id),
-                    linal_lab5_id INTEGER NOT NULL REFERENCES linal_lab5(id)
+                    linal_lab5_id INTEGER NOT NULL REFERENCES linal_lab6(id)
                 );
             '''  # create table of students
             await connection.execute(sql_query)
@@ -241,9 +241,9 @@ class Database:
                     ($1, $2, $3, $4)
                 RETURNING id;
             """
-            linal_lab1_row = await conn.fetchrow(sql_query, variant.matrix_a, variant.matrix_b, variant.alpha,
+            linal_lab_row = await conn.fetchrow(sql_query, variant.matrix_a, variant.matrix_b, variant.alpha,
                                                  variant.beta)
-            return linal_lab1_row.get('id')
+            return linal_lab_row.get('id')
 
         async def generate_linal_lab3() -> int:
             variant = linal.lab3.generate_variant()
@@ -253,8 +253,8 @@ class Database:
                     ($1, $2)
                 RETURNING id;
             """
-            linal_lab3_row = await conn.fetchrow(sql_query, variant.matrix_a, variant.coefficients)
-            return linal_lab3_row.get('id')
+            linal_lab_row = await conn.fetchrow(sql_query, variant.matrix_a, variant.coefficients)
+            return linal_lab_row.get('id')
 
         async def generate_linal_lab4() -> int:
             variant = linal.lab4.generate_variant()
@@ -264,19 +264,19 @@ class Database:
                     ($1, $2)
                 RETURNING id;
             """
-            linal_lab4_row = await conn.fetchrow(sql_query, variant.matrix_a, variant.matrix_b)
-            return linal_lab4_row.get('id')
+            linal_lab_row = await conn.fetchrow(sql_query, variant.matrix_a, variant.matrix_b)
+            return linal_lab_row.get('id')
 
-        async def generate_linal_lab5() -> int:
-            variant = linal.lab5.generate_variant()
+        async def generate_linal_lab6() -> int:
+            variant = linal.lab6.generate_variant()
             sql_query = """ 
-                INSERT INTO linal_lab5 (matrix_a)
+                INSERT INTO linal_lab6 (matrix_a)
                 VALUES
                     ($1)
                 RETURNING id;
             """
-            linal_lab5_row = await conn.fetchrow(sql_query, variant.matrix_a)
-            return linal_lab5_row.get('id')
+            linal_lab_row = await conn.fetchrow(sql_query, variant.matrix_a)
+            return linal_lab_row.get('id')
 
         async def add_new_user(user: User, conn: PoolConnectionProxy) -> int:
             sql_query = """ 
@@ -300,7 +300,7 @@ class Database:
 
         async def add_new_student(user_id: int, conn: PoolConnectionProxy) -> int:
             sql_query = """ 
-                INSERT INTO students (user_id, linal_marks, angem_marks, group_id, linal_lab1_id, linal_lab3_id, linal_lab4_id, linal_lab5_id)
+                INSERT INTO students (user_id, linal_marks, angem_marks, group_id, linal_lab1_id, linal_lab3_id, linal_lab4_id, linal_lab6_id)
                 VALUES
                     ($1, $2, $3, $4, $5, $6, $7, $8)
                 RETURNING id;
@@ -312,13 +312,13 @@ class Database:
             linal_lab1_id = await generate_linal_lab1()
             linal_lab3_id = await generate_linal_lab3()
             linal_lab4_id = await generate_linal_lab4()
-            linal_lab5_id = await generate_linal_lab5()
+            linal_lab6_id = await generate_linal_lab6()
             student_row = await conn.fetchrow(
                 sql_query, user_id, linal_marks, angem_marks, 1,
                 linal_lab1_id,
                 linal_lab3_id,
                 linal_lab4_id,
-                linal_lab5_id
+                linal_lab6_id
             )
             return student_row.get('id')
 
@@ -403,17 +403,17 @@ class Database:
                 raise Exception  # TODO: change to correct exception and handle it in routes
             return variant
 
-    async def load_linal_lab5_variant(self, student_id: int) -> Optional[LinalLab5Request]:
+    async def load_linal_lab6_variant(self, student_id: int) -> Optional[LinalLab6Request]:
         async with self._pool.acquire() as conn:
             sql_query = '''
-                SELECT linal_lab5.*
+                SELECT linal_lab6.*
                 FROM students
-                JOIN linal_lab5 ON linal_lab5.id = students.linal_lab5_id
+                JOIN linal_lab6 ON linal_lab6.id = students.linal_lab6_id
                 WHERE students.id = $1;
             '''
             variant_row = await conn.fetchrow(sql_query, student_id)
             if variant_row is not None:
-                variant = LinalLab5Request(**variant_row)
+                variant = LinalLab6Request(**variant_row)
             else:
                 raise Exception  # TODO: change to correct exception and handle it in routes
             return variant
