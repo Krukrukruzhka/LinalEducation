@@ -21,11 +21,15 @@ class LinalLab2Response(BaseModel):
 
 
 class LinalLab3Request(BaseModel):
-    pass
+    matrix_a: list[list[int]]
+    coefficients: list[int]
 
 
 class LinalLab3Response(BaseModel):
-    pass
+    step_1_matrix_1: list[list[int]]
+    step_1_matrix_2: list[list[int]]
+    step_1_matrix_3: list[list[int]]
+    step_2_matrix_1: list[list[int]]
 
 
 class LinalLab4Request(BaseModel):
