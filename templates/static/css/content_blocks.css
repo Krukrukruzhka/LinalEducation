@@ -46,3 +46,7 @@
 .verdict_text {
     font-size: 17px;
 }
+
+#is_solved {
+    display: none;
+}

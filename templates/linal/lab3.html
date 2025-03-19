@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="{{url_for('static', path='css/matrix.css')}}">
 <link rel="stylesheet" href="{{url_for('static', path='css/content_blocks.css')}}">
 
-<script src="{{url_for('static', path='js/linal/lab3.js')}}"></script>
+<script type="module" src="{{url_for('static', path='js/linal/lab3.js')}}"></script>
 {% endblock %}
 
 {% block main_content %}
@@ -114,7 +114,7 @@
 
 
 <div class="check_block">
-    <button type="button" class="check_button" onclick="check_request()">Проверить</button>
+    <button type="button" class="check_button" id="check_button">Проверить</button>
     <div class="verdict_block" id="user_verdict_block" hidden="hidden">
         <img class="verdict_image">
         <p class="verdict_text"></p>
@@ -123,13 +123,5 @@
 {% endblock %}
 
 {% block end_scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof show_verdict === 'function') {
-            show_verdict({{ is_solved | lower }});
-        } else {
-            console.error("Function show_verdict is not defined");
-        }
-    });
-</script>
+<div id="is_solved">{{ is_solved | lower }}</div>
 {% endblock %}
