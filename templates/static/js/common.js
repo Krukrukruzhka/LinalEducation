@@ -39,6 +39,7 @@ export function send_response(response_dict, url) {
                 console.log("Response:", this.responseText);
                 const responseObject = JSON.parse(this.responseText);
                 const verdict = responseObject.verdict;
+                document.getElementById("is_solved").textContent = verdict;
                 show_verdict(verdict);
             } else {
                 console.error("Request failed with status", this.status);

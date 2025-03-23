@@ -31,14 +31,17 @@ function check_request() {
 
 
 document.addEventListener('DOMContentLoaded', function () {
-   if (typeof show_verdict === 'function') {
+    let verdict = document.getElementById("is_solved").textContent;
+    if (typeof show_verdict === 'function' && verdict === 'true') {
         show_verdict();
+    } else if (typeof show_verdict === 'function') {
+        console.info("show_verdict is defined but verdict is not 'true'");
     } else {
         console.error("Function show_verdict is not defined");
     }
 
-   const button = document.getElementById('check_button');
-   if (button) {
-       button.addEventListener('click', check_request);
-   }
+    const button = document.getElementById('check_button');
+    if (button) {
+        button.addEventListener('click', check_request);
+    }
 });

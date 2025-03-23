@@ -3,13 +3,13 @@ import { show_verdict, send_response } from '../common.js';
 
 
 DOMAIN = "";
-const URL = DOMAIN + "/linal/lab4/check";
+const URL = DOMAIN + "/linal/lab5/check";
 
 
 function check_request() {
     let response_dict = {};
-    let matrices = document.getElementsByClassName("editable_matrix");
-    response_dict[`answer_matrix_det`] = matrices[0].getElementsByClassName("matrix_element")[0].value;
+    response_dict[`matrix_a_res`] = document.getElementById("step1_determinant").value;
+    response_dict[`matrix_b_res`] = document.getElementById("step2_determinant").value;
     console.log(response_dict);
 
     send_response(response_dict, URL);

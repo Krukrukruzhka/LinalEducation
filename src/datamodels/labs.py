@@ -46,11 +46,13 @@ class LinalLab6Request(BaseModel):
 
 
 class LinalLab5Request(BaseModel):
-    pass
+    matrix_a: list[list[str]]
+    matrix_b: list[list[str]]
 
 
 class LinalLab5Response(BaseModel):
-    pass
+    matrix_a_res: int
+    matrix_b_res: int
 
 
 class LinalLab6Response(BaseModel):
