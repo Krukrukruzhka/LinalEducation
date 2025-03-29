@@ -19,8 +19,8 @@ class LinalLab2Request(BaseModel):
 
 
 class LinalLab2Response(BaseModel):
-    step_1: list[list[int]]
-    step_2: int
+    step_1_matrix_1: list[list[int]]
+    step_2_tr: int
 
 
 class LinalLab3Request(BaseModel):
