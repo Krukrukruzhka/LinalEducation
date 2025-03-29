@@ -1,21 +1,6 @@
 import numpy as np
-import random
 
 from src.datamodels.labs import LinalLab6Request, LinalLab6Response
-
-
-def generate_variant() -> LinalLab6Request:
-    a_n, a_m = 4, 4
-
-    A = [[] for _ in range(a_m)]
-    for row in A:
-        for _ in range(a_n):
-            k = 0
-            while k == 0:
-                k = random.randint(-9, 9)
-            row.append(k)
-
-    return LinalLab6Request(matrix_a = A)
 
 
 def check_lab(condition: LinalLab6Request, user_answer: LinalLab6Response) -> bool:

@@ -1,16 +1,6 @@
 import numpy as np
-import random
 
 from src.datamodels.labs import LinalLab3Request, LinalLab3Response
-
-
-def generate_variant() -> LinalLab3Request:
-    a_n, a_m = 2, 2
-
-    A = [[random.randint(-9, 9) for _ in range(a_n)] for _ in range(a_m)]
-    c = [random.randint(-9, 9) for _ in range(3)]
-
-    return LinalLab3Request(matrix_a = A, coefficients=c)
 
 
 def check_lab(condition: LinalLab3Request, user_answer: LinalLab3Response) -> bool:

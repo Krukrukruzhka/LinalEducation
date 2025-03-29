@@ -13,11 +13,14 @@ class LinalLab1Response(BaseModel):
 
 
 class LinalLab2Request(BaseModel):
-    pass
+    vector_x: list[int]
+    vector_y: list[int]
+    matrix_a: list[list[int]]
 
 
 class LinalLab2Response(BaseModel):
-    pass
+    step_1: list[list[int]]
+    step_2: int
 
 
 class LinalLab3Request(BaseModel):
@@ -41,10 +44,6 @@ class LinalLab4Response(BaseModel):
     answer_matrix_det: int
 
 
-class LinalLab6Request(BaseModel):
-    matrix_a: list[list[int]]
-
-
 class LinalLab5Request(BaseModel):
     matrix_a: list[list[str]]
     matrix_b: list[list[str]]
@@ -55,29 +54,37 @@ class LinalLab5Response(BaseModel):
     matrix_b_res: int
 
 
+class LinalLab6Request(BaseModel):
+    matrix_a: list[list[int]]
+
+
 class LinalLab6Response(BaseModel):
     step_1: list[int]
     step_2: int
 
 
 class LinalLab7Request(BaseModel):
-    pass
+    matrix_a: list[list[int]]
 
 
 class LinalLab7Response(BaseModel):
-    pass
+    step_1: list[list[int]]
+    step_2: list[list[int]]
 
 
 class LinalLab8Request(BaseModel):
-    pass
+    matrix_b: list[list[int]]
 
 
 class LinalLab8Response(BaseModel):
-    pass
+    step_1: list[list[int]]
+    step_2: list[list[int]]
+    step_3: list[list[int]]
 
 
 class LinalLab9Request(BaseModel):
-    pass
+    matrix_a: list[list[int]]
+    matrix_b: list[list[int]]
 
 
 class LinalLab9Response(BaseModel):
@@ -85,7 +92,15 @@ class LinalLab9Response(BaseModel):
 
 
 class LinalLab10Request(BaseModel):
-    pass
+    equation_1_matrix_1: list[list[int]]
+    equation_1_matrix_2: list[list[int]]
+    equation_1_coefficient: int
+    equation_2_matrix_1: list[list[int]]
+    equation_2_matrix_2: list[list[int]]
+    equation_2_coefficient: int
+    equation_3_matrix_1: list[list[int]]
+    equation_3_matrix_2: list[list[int]]
+    equation_3_matrix_3: list[list[int]]
 
 
 class LinalLab10Response(BaseModel):
@@ -93,7 +108,8 @@ class LinalLab10Response(BaseModel):
 
 
 class LinalLab11Request(BaseModel):
-    pass
+    coefficients: list[list[int]]
+    results: list[int]
 
 
 class LinalLab11Response(BaseModel):
@@ -101,7 +117,8 @@ class LinalLab11Response(BaseModel):
 
 
 class LinalLab12Request(BaseModel):
-    pass
+    coefficients: list[list[int]]
+    results: list[int]
 
 
 class LinalLab12Response(BaseModel):
@@ -109,7 +126,9 @@ class LinalLab12Response(BaseModel):
 
 
 class LinalLab13Request(BaseModel):
-    pass
+    matrix_a: list[list[int]]
+    matrix_b: list[list[int]]
+    matrix_c: list[list[int]]
 
 
 class LinalLab13Response(BaseModel):
@@ -117,7 +136,7 @@ class LinalLab13Response(BaseModel):
 
 
 class LinalLab14Request(BaseModel):
-    pass
+    coefficients: list[list[float]]
 
 
 class LinalLab14Response(BaseModel):
@@ -125,7 +144,7 @@ class LinalLab14Response(BaseModel):
 
 
 class LinalLab15Request(BaseModel):
-    pass
+    coefficients: list[list[list[str]]]
 
 
 class LinalLab15Response(BaseModel):
