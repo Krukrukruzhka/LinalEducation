@@ -19,7 +19,6 @@ from src.datamodels.page_payload import BasicData
 from src.datamodels.utils import AdditionalUserInfo, StudentWithResults, StudentMark
 from src.utils.constants import LINAL_LABS_COUNT, ANGEM_LABS_COUNT
 
-from src.algorithms import linal
 from database_pg.lab_variants import linal_variants
 
 
@@ -854,6 +853,9 @@ class Database:
                 angem_marks = row['angem_marks']
                 if group_name not in groups_and_students:
                     groups_and_students[group_name] = []
+
+                if student_name is None:
+                    continue
 
                 linal_marks = json.loads(linal_marks)
                 angem_marks = json.loads(angem_marks)
