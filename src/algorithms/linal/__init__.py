@@ -5,5 +5,7 @@ from src.algorithms.linal import (
     lab4,
     lab5,
     lab6,
+    lab7,
+    lab8,
     lab11
 )

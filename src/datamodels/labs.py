@@ -68,8 +68,9 @@ class LinalLab7Request(BaseModel):
 
 
 class LinalLab7Response(BaseModel):
-    step_1: list[list[int]]
-    step_2: list[list[int]]
+    step_1_matrix_1: list[list[int]]
+    step_1_matrix_2: list[list[int]]
+    step_2_rank: int
 
 
 class LinalLab8Request(BaseModel):
@@ -77,10 +78,10 @@ class LinalLab8Request(BaseModel):
 
 
 class LinalLab8Response(BaseModel):
-    step_1: list[list[int]]
-    step_2: list[list[int]]
-    step_3: list[list[int]]
-
+    step_1_matrix_1: list[list[int]]
+    step_1_matrix_2: list[list[int]]
+    step_1_matrix_3: list[list[int]]
+    step_2_rank: int
 
 class LinalLab9Request(BaseModel):
     matrix_a: list[list[int]]

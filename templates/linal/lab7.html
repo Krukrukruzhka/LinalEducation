@@ -1,0 +1,97 @@
+{% extends "basic.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{url_for('static', path='css/matrix.css')}}">
+<link rel="stylesheet" href="{{url_for('static', path='css/content_blocks.css')}}">
+
+<script type="module" src="{{url_for('static', path='js/linal/lab7.js')}}"></script>
+{% endblock %}
+
+{% block main_content %}
+<div class="lab_step_block">
+    <div class="lab_step_content">
+        <div class="text_block">
+            <h2>Задача 7</h2>
+            <p>Определить ранг матрицы <i>А</i>, приводя её к ступенчатому виду.</p>
+        </div>
+    </div>
+    <div class="lab_step_content">
+        <div class="matrix_with_name">
+            <span class="matrix_name">A = </span>
+            <div class="matrix non_editable_matrix">
+                {% for row in variant['matrix_a'] %}
+                <div class="matrix_row">
+                    {% for element in row %}
+                        <input type="text" class="matrix_element" value={{element}} />
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="lab_step_block">
+    <div class="lab_step_content">
+        <div class="text_block">
+            <h2>Шаг 1</h2>
+        </div>
+    </div>
+    <div class="lab_step_content">
+        <div class="matrix_with_name">
+            <div class="matrix editable_matrix" id="step_1_matrix_1">
+                {% for row in range(3) %}
+                <div class="matrix_row">
+                    {% for column in range(4) %}
+                        {% set element = "0" if row > column and column == 0 else "" %}
+                        <input type="number" class="matrix_element" value="{{ element }}" />
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="lab_step_content">
+        <div class="matrix_with_name">
+            <div class="matrix editable_matrix" id="step_1_matrix_2">
+                {% for row in range(3) %}
+                <div class="matrix_row">
+                    {% for column in range(4) %}
+                        {% set element = "0" if row > column else "" %}
+                        <input type="number" class="matrix_element" value="{{ element }}" />
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="lab_step_block">
+    <div class="lab_step_content">
+        <div class="text_block">
+            <h2>Шаг 2</h2>
+        </div>
+    </div>
+    <div class="lab_step_content">
+        <div class="matrix_with_name">
+            <div class="user_input_block">
+                <span><i>rank(A)</i> = </span>
+                <input type="number" class="rank_value" id="step_2_rank"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="check_block">
+    <button type="button" class="check_button" id="check_button">Проверить</button>
+    <div class="verdict_block" id="user_verdict_block" hidden="hidden">
+        <img class="verdict_image">
+        <p class="verdict_text"></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block end_scripts %}
+<div id="is_solved">{{ is_solved | lower }}</div>
+{% endblock %}
