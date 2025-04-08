@@ -9,7 +9,6 @@
 }
 
 .lab_step_content {
-
     display: flex;
     flex-direction: row;
     gap: 4vw;
@@ -49,4 +48,11 @@
 
 #is_solved {
     display: none;
+}
+
+.user_input_block {
+    display: flex;
+    flex-direction: row;
+    margin-top: 1.5vw;
+    margin-bottom: 1.5vw;
 }

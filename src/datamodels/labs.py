@@ -113,7 +113,13 @@ class LinalLab11Request(BaseModel):
 
 
 class LinalLab11Response(BaseModel):
-    pass
+    step_1_det: float
+    step_2_det_1: float
+    step_2_det_2: float
+    step_2_det_3: float
+    step_3_x_1: float
+    step_3_x_2: float
+    step_3_x_3: float
 
 
 class LinalLab12Request(BaseModel):
