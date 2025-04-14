@@ -1,0 +1,14 @@
+.block_matrix_with_e {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch; /* Растягиваем элементы по высоте контейнера */
+    justify-content: space-between;
+}
+
+.dividing_line {
+    display: flex;
+    align-items: center; /* Центрируем содержимое по вертикали внутри скобки */
+    font-size: 3em; /* Настраиваем размер шрифта для крупности скобки */
+    margin-right: 10px;
+    margin-left: 10px;
+}

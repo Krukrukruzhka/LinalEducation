@@ -83,13 +83,21 @@ class LinalLab8Response(BaseModel):
     step_1_matrix_3: list[list[int]]
     step_2_rank: int
 
+
 class LinalLab9Request(BaseModel):
     matrix_a: list[list[int]]
-    matrix_b: list[list[int]]
 
 
 class LinalLab9Response(BaseModel):
-    pass
+    step_1_matrix_1: list[list[int]]
+    step_1_matrix_1_e: list[list[int]]
+    step_1_matrix_2: list[list[int]]
+    step_1_matrix_2_e: list[list[int]]
+    step_2_matrix_1: list[list[int]]
+    step_2_matrix_1: list[list[int]]
+    step_2_matrix_2: list[list[int]]
+    step_2_matrix_2_e: list[list[int]]
+    step_3_matrix_1: list[list[int]]
 
 
 class LinalLab10Request(BaseModel):

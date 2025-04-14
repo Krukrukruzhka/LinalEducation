@@ -194,8 +194,7 @@ class Database:
             sql_query = ''' 
                 CREATE TABLE IF NOT EXISTS linal_lab9 (
                     id SERIAL PRIMARY KEY,
-                    matrix_a INTEGER[][] NOT NULL,
-                    matrix_b INTEGER[][] NOT NULL
+                    matrix_a INTEGER[][] NOT NULL
                 );
             '''  # create table of linal_lab9
             await connection.execute(sql_query)
@@ -359,10 +358,10 @@ class Database:
             await connection.executemany(sql_query, variants)
 
             sql_query = f''' 
-                INSERT INTO linal_lab9 (matrix_a, matrix_b)
-                VALUES ($1, $2);
+                INSERT INTO linal_lab9 (matrix_a)
+                VALUES ($1);
             '''
-            variants = [(variant.matrix_a, variant.matrix_b) for variant in linal_variants.LINAL_LAB9_VARIANTS]
+            variants = [(variant.matrix_a, ) for variant in linal_variants.LINAL_LAB9_VARIANTS]
             await connection.executemany(sql_query, variants)
 
             sql_query = f''' 

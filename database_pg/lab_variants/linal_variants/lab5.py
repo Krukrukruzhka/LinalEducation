@@ -8,9 +8,9 @@ LINAL_LAB5_VARIANTS = [
             ["-5", "-2", "1"]
         ],
         matrix_b=[
-            ["2", "3", "cos(a)"],
-            ["-3", "2", "sin(a)"],
-            ["cos(a)", "sin(a)", "3"]
+            ["2", "3", "cos a"],
+            ["-3", "2", "sin a"],
+            ["cos a", "sin a", "3"]
         ]
     ),
     LinalLab5Request(
@@ -20,9 +20,9 @@ LINAL_LAB5_VARIANTS = [
             ["-2", "-5", "1"]
         ],
         matrix_b=[
-            ["4", "cos(a)", "sin(a)"],
-            ["cos(a)", "5", "-3"],
-            ["sin(a)", "3", "5"]
+            ["4", "cos a", "sin a"],
+            ["cos a", "5", "-3"],
+            ["sin a", "3", "5"]
         ]
     ),
     LinalLab5Request(
@@ -32,9 +32,9 @@ LINAL_LAB5_VARIANTS = [
             ["-3", "-2", "5"]
         ],
         matrix_b=[
-            ["3", "sin(a)", "4"],
-            ["sin(a)", "-2", "cos(a)"],
-            ["-4", "cos(a)", "3"]
+            ["3", "sin a", "4"],
+            ["sin a", "-2", "cos a"],
+            ["-4", "cos a", "3"]
         ]
     )
 ]
