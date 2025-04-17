@@ -1,0 +1,92 @@
+{% extends "basic.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{url_for('static', path='css/matrix.css')}}">
+<link rel="stylesheet" href="{{url_for('static', path='css/content_blocks.css')}}">
+<link rel="stylesheet" href="{{url_for('static', path='css/linal/lab11.css')}}">
+
+<script type="module" src="{{url_for('static', path='js/linal/lab11.js')}}"></script>
+{% endblock %}
+
+{% block main_content %}
+<div class="lab_step_block">
+    <div class="lab_step_content">
+        <div class="text_block">
+            <h2>Задача 11</h2>
+            <p>Решить по правилу Крамера систему уравнений.</p>
+        </div>
+    </div>
+    <div class="lab_step_content">
+        <div class="equation_system">
+            <div class="system_bracket">{</div>
+            <div class="system_body">
+                {% for row_index in range(variant.coefficients.__len__()) %}
+                <div class="system_row">
+                    {% for column_index in range(variant.coefficients[row_index].__len__()) %}
+                    <p class="system_element">{{variant.coefficients[row_index][column_index]}}x<sub>{{column_index + 1}}</sub></p>
+                    <p class="system_element">{% if column_index + 1 < variant.coefficients[row_index].__len__() %} + {% else %} = {% endif %}</p>
+                    {% endfor %}
+                    <p class="system_element">{{variant.results[row_index]}}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="lab_step_block">
+    <div class="lab_step_content">
+        <div class="user_input_block">
+            <span>Δ = </span>
+            <input type="number" class="determinant_value" id="step_1_det" step="0.01" placeholder="0.000"/>
+        </div>
+    </div>
+</div>
+
+<div class="lab_step_block">
+    <div class="lab_step_content">
+        <div class="user_input_block">
+            <span>Δ<sub>1</sub> = </span>
+            <input type="number" class="determinant_value" id="step_2_det_1" step="0.01" placeholder="0.000"/>
+        </div>
+        <div class="user_input_block">
+            <span>Δ<sub>2</sub> = </span>
+            <input type="number" class="determinant_value" id="step_2_det_2" step="0.01" placeholder="0.000"/>
+        </div>
+        <div class="user_input_block">
+            <span>Δ<sub>3</sub> = </span>
+            <input type="number" class="determinant_value" id="step_2_det_3" step="0.01" placeholder="0.000"/>
+        </div>
+    </div>
+</div>
+
+<div class="lab_step_block">
+    <div class="lab_step_content">
+        <div class="user_input_block">
+            <span>x<sub>1</sub> = </span>
+            <input type="number" class="determinant_value" id="step_3_x_1" step="0.01" placeholder="0.000"/>
+        </div>
+        <div class="user_input_block">
+            <span>x<sub>2</sub> = </span>
+            <input type="number" class="determinant_value" id="step_3_x_2" step="0.01" placeholder="0.000"/>
+        </div>
+        <div class="user_input_block">
+            <span>x<sub>3</sub> = </span>
+            <input type="number" class="determinant_value" id="step_3_x_3" step="0.01" placeholder="0.000"/>
+        </div>
+    </div>
+</div>
+
+
+<div class="check_block">
+    <button type="button" class="check_button" id="check_button">Проверить</button>
+    <div class="verdict_block" id="user_verdict_block" hidden="hidden">
+        <img class="verdict_image">
+        <p class="verdict_text"></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block end_scripts %}
+<div id="is_solved">{{ is_solved | lower }}</div>
+{% endblock %}

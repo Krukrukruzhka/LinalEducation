@@ -1,0 +1,31 @@
+.equation_system {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch; /* Растягиваем элементы по высоте контейнера */
+}
+
+.system_bracket {
+    display: flex;
+    align-items: center; /* Центрируем содержимое по вертикали внутри скобки */
+    font-size: 3em; /* Настраиваем размер шрифта для крупности скобки */
+    margin-right: 10px;
+}
+
+.system_body {
+    flex-grow: 1; /* Позволяем этому элементу занимать оставшееся пространство */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Центрируем строки внутри тела контейнера */
+}
+
+.system_row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.system_element {
+    margin-right: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}

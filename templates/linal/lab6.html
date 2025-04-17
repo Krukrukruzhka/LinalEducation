@@ -1,0 +1,92 @@
+{% extends "basic.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{url_for('static', path='css/matrix.css')}}">
+<link rel="stylesheet" href="{{url_for('static', path='css/content_blocks.css')}}">
+<link rel="stylesheet" href="{{url_for('static', path='css/linal/lab6.css')}}">
+
+<script type="module" src="{{url_for('static', path='js/linal/lab6.js')}}"></script>
+{% endblock %}
+
+{% block main_content %}
+<div class="lab_step_block">
+    <div class="lab_step_content">
+        <div class="text_block">
+            <h2>Задача 6</h2>
+            <p>Дана матрица <i>А</i>. Необходимо вычислить её определитель.</p>
+        </div>
+    </div>
+    <div class="lab_step_content">
+        <div class="matrix_with_name">
+            <span class="matrix_name">A = </span>
+            <div class="matrix non_editable_matrix">
+                <div class="matrix_row">
+                    <input type="text" class="matrix_element" value="a" style="font-weight: bold;" />
+                    <input type="text" class="matrix_element" value="b" style="font-weight: bold;" />
+                    <input type="text" class="matrix_element" value="c" style="font-weight: bold;" />
+                    <input type="text" class="matrix_element" value="d" style="font-weight: bold;" />
+                </div>
+                {% for row in variant['matrix_a'][1:] %}
+                <div class="matrix_row">
+                    {% for element in row %}
+                        <input type="number" class="matrix_element" value={{element}} />
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="lab_step_block">
+    <div class="lab_step_content">
+        <div class="text_block">
+            <h2>Шаг 1</h2>
+        </div>
+    </div>
+    <div class="lab_step_content">
+        <div class="matrix_with_name">
+            <span class="matrix_name">| A | = </span>
+            <input type="number" class="linal_lab6_step1_input"/> <span><b> a</b> - </span>
+            <input type="number" class="linal_lab6_step1_input"/> <span><b> b</b> + </span>
+            <input type="number" class="linal_lab6_step1_input"/> <span><b> c</b> - </span>
+            <input type="number" class="linal_lab6_step1_input"/> <span><b> d</b></span>
+        </div>
+    </div>
+</div>
+
+<div class="lab_step_block">
+    <div class="lab_step_content">
+        <div class="text_block">
+            <h2>Шаг 2</h2>
+        </div>
+    </div>
+    <div>
+        <div>При</div>
+        <div><b>a</b> = {{variant['matrix_a'][0][0]}}</div>
+        <div><b>b</b> = {{variant['matrix_a'][0][1]}}</div>
+        <div><b>c</b> = {{variant['matrix_a'][0][2]}}</div>
+        <div><b>d</b> = {{variant['matrix_a'][0][3]}}</div>
+    </div>
+    <div class="lab_step_content">
+        <div class="matrix_with_name">
+            <span class="matrix_name">|A| = </span>
+            <div class="matrix editable_matrix">
+                <input type="number" class="matrix_element"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="check_block">
+    <button type="button" class="check_button" id="check_button">Проверить</button>
+    <div class="verdict_block" id="user_verdict_block" hidden="hidden">
+        <img class="verdict_image">
+        <p class="verdict_text"></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block end_scripts %}
+<div id="is_solved">{{ is_solved | lower }}</div>
+{% endblock %}

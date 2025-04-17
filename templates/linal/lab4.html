@@ -4,15 +4,15 @@
 <link rel="stylesheet" href="{{url_for('static', path='css/matrix.css')}}">
 <link rel="stylesheet" href="{{url_for('static', path='css/content_blocks.css')}}">
 
-<script src="{{url_for('static', path='js/linal/lab1.js')}}"></script>
+<script type="module" src="{{url_for('static', path='js/linal/lab4.js')}}"></script>
 {% endblock %}
 
 {% block main_content %}
 <div class="lab_step_block">
     <div class="lab_step_content">
         <div class="text_block">
-            <h2>Задача 1</h2>
-            <p>Даны матрицы <i>А</i> и <i>B</i>, а также выражение матрицы <i>C</i> через <i>A</i> и <i>B</i>. Вычислить матрицу <i>C</i>.</p>
+            <h2>Задача 4</h2>
+            <p>Даны матрицы <i>А</i> и <i>B</i>. Необходимо вычислить определитель их произведения.</p>
         </div>
     </div>
     <div class="lab_step_content">
@@ -41,10 +41,6 @@
                 {% endfor %}
             </div>
         </div>
-
-        <div class="text_block" id="lab1_C_condition">
-            <p>C = {{variant['alpha']}} * A * B {% if variant['beta'] >= 0 %} + {{variant['beta']}} {% else %} - {{ -variant['beta'] }} {% endif %} * B<sup>T</sup> * A<sup>T</sup></p>
-        </div>
     </div>
 </div>
 
@@ -56,22 +52,16 @@
     </div>
     <div class="lab_step_content">
         <div class="matrix_with_name">
-            <span class="matrix_name">{{variant['alpha']}} * A * B {% if variant['beta'] >= 0 %} + {{variant['beta']}} {% else %} - {{ -variant['beta'] }} {% endif %} * B<sup>T</sup> * A<sup>T</sup> = </span>
+            <span class="matrix_name">|A * B| = </span>
             <div class="matrix editable_matrix">
-                {% for row in range(2) %}
-                <div class="matrix_row">
-                    {% for element in range(2) %}
-                        <input type="number" class="matrix_element"/>
-                    {% endfor %}
-                </div>
-                {% endfor %}
+                <input type="number" class="matrix_element"/>
             </div>
         </div>
     </div>
 </div>
 
 <div class="check_block">
-    <button type="button" class="check_button" onclick="check_request()">Проверить</button>
+    <button type="button" class="check_button" id="check_button">Проверить</button>
     <div class="verdict_block" id="user_verdict_block" hidden="hidden">
         <img class="verdict_image">
         <p class="verdict_text"></p>
@@ -80,13 +70,5 @@
 {% endblock %}
 
 {% block end_scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof show_verdict === 'function') {
-            show_verdict({{ is_solved | lower }});
-        } else {
-            console.error("Function show_verdict is not defined");
-        }
-    });
-</script>
+<div id="is_solved">{{ is_solved | lower }}</div>
 {% endblock %}

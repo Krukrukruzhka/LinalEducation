@@ -3,13 +3,11 @@ from time import sleep
 
 from fastapi.templating import Jinja2Templates
 from src.datamodels.application import ApplicationSettings
+from src.utils.constants import DB_RETRY_COUNT, DB_RETRY_SLEEP_SECONDS
 
 
 logger = logging.getLogger(__name__)
 app_settings = ApplicationSettings()
-
-DB_RETRY_COUNT = 10
-DB_RETRY_SLEEP_SECONDS = 2
 
 
 async def activate_application_settings(env_mode: str):

@@ -9,7 +9,6 @@
 }
 
 .lab_step_content {
-
     display: flex;
     flex-direction: row;
     gap: 4vw;
@@ -45,4 +44,15 @@
 
 .verdict_text {
     font-size: 17px;
+}
+
+#is_solved {
+    display: none;
+}
+
+.user_input_block {
+    display: flex;
+    flex-direction: row;
+    margin-top: 1.5vw;
+    margin-bottom: 1.5vw;
 }

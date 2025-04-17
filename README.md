@@ -10,6 +10,7 @@
 ### Навигация
 * [Стек](./documentation/technologies.md) 
 * [Ручки](./documentation/routes.md)
+* [Для разработчиков](./documentation/dev.md)
 * [FAQ](./documentation/faq.md)
 
 ---

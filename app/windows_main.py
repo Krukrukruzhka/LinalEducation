@@ -15,14 +15,14 @@ from src.utils.arguments_parsing import enrich_parser
 from config.configs import Config
 from database_pg.database import Database
 from config.application import app_settings
-from src.utils.constants import LOCAL_ENV, DOCKER_ENV, WINDOWS_ENV
+from src.utils.constants import LOCAL_ENV, DOCKER_ENV, WINDOWS_ENV, MAX_SIZE_LOG_FILE, COUNT_LOG_FILES
 from config.app_config import init_app_config
 
+
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
-MAX_SIZE_LOG_FILE = 20 * 1024 * 1024
-COUNT_LOG_FILES = 5
 
 logger = logging.getLogger(__name__)
+
 
 class LoguruHandler(logging.Handler):
     def emit(self, record):
@@ -95,6 +95,7 @@ def start_app():
 
     # Run with uvicorn
     uvicorn.run(app, host="127.0.0.1", port=80, log_level=LOG_LEVEL.lower())
+
 
 if __name__ == "__main__":
     start_app()

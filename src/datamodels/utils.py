@@ -16,8 +16,10 @@ class StudentMark(BaseModel):
 
 class StudentWithResults(BaseModel):
     name: str
-    total_result: int
-    marks: list[StudentMark]
+    total_linal_result: int
+    total_angem_result: int
+    linal_marks: list[StudentMark]
+    angem_marks: list[StudentMark]
 
 
 class TextWithGroups(BaseModel):
