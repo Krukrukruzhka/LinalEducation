@@ -8,6 +8,7 @@ from pathlib import Path
 from loguru import logger as loguru_logger
 
 import uvicorn
+sys.path = ['C:\\Users\\Lena\\Desktop\\LinalEducation', *sys.path]
 
 from app.application import create_app
 from src.utils.arguments_parsing import enrich_parser
@@ -61,7 +62,7 @@ def configurate_loggers(env_mode: str):
         "uvicorn.error",
         "uvicorn.asgi"
     ]
-    print(working_loggers)
+
     for name in working_loggers:
         logging.getLogger(name).handlers = [terminal_common_handler, file_common_handler]
         logging.getLogger(name).propagate = False
@@ -93,7 +94,7 @@ def start_app():
     app = create_app(env_mode)
 
     # Run with uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level=LOG_LEVEL.lower())
+    uvicorn.run(app, host="127.0.0.1", port=80, log_level=LOG_LEVEL.lower())
 
 if __name__ == "__main__":
     start_app()
