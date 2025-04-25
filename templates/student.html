@@ -52,7 +52,7 @@
             <tr>
                 <th><a href="/linal/lab{{lab_number}}">Задача №{{lab_number}}</a></th>
                 <th>{{ user_data.student.linal_marks[lab_number-1].approve_date }}</th>
-                <th>None</th>
+                <th>{{ user_data.student_group.linal_deadlines[lab_number-1] }}</th>
             </tr>
             {% endfor %}
         </tbody>
@@ -74,7 +74,7 @@
             <tr>
                 <th><a href="/angem/lab{{lab_number}}">Задача №{{lab_number}}</a></th>
                 <th>{{ user_data.student.angem_marks[lab_number-1].approve_date }}</th>
-                <th>None</th>
+                <th>{{ user_data.student_group.angem_deadlines[lab_number-1] }}</th>
             </tr>
             {% endfor %}
         </tbody>

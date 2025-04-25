@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import json
 import logging
 import random
@@ -114,6 +115,8 @@ class Database:
                 CREATE TABLE IF NOT EXISTS groups (
                     id SERIAL PRIMARY KEY,
                     name TEXT UNIQUE NOT NULL,
+                    linal_deadlines TEXT[],
+                    angem_deadlines TEXT[],
                     teacher_id INTEGER REFERENCES teachers(id)
                 );
             '''  # create table of groups
@@ -414,6 +417,79 @@ class Database:
             '''
             variants = [(variant.coefficients, ) for variant in linal_variants.LINAL_LAB15_VARIANTS]
             await connection.executemany(sql_query, variants)
+
+            sql_query = f'''
+                INSERT INTO users (name, username, password, role_id)
+                VALUES 
+                    ('Пегачкова Елена Александровна', 'pegachkova_elena', '$2b$12$qh9/Z.fgrxc/WS7OSs.b5.vRgHxJa3C2KE1ZvxC9QV10Umjk/KoXi', 1),
+                    ('Бондарева Елена Евгеньевна', 'lena_bondareva_03', '$2b$12$qh9/Z.fgrxc/WS7OSs.b5.vRgHxJa3C2KE1ZvxC9QV10Umjk/KoXi', 3),
+                    ('Жилин Михаил Денисович', 'krukrukruzhka', '$2b$12$qh9/Z.fgrxc/WS7OSs.b5.vRgHxJa3C2KE1ZvxC9QV10Umjk/KoXi', 2);
+            '''
+            await connection.execute(sql_query)
+
+            sql_query = f'''
+                INSERT INTO teachers (user_id)
+                VALUES 
+                    (1);
+            '''
+            await connection.execute(sql_query)
+
+            sql_query = f'''
+                INSERT INTO groups (name, linal_deadlines, angem_deadlines, teacher_id)
+                VALUES 
+                    ('М8О-403Б-21', $1, $2, 1),
+                    ('М8О-405Б-21', $3, $4, 1);
+            '''
+            linal_deadlines = [(datetime.strptime('2025-03-14', '%Y-%m-%d') + timedelta(days=5*i)).strftime('%Y-%m-%d') for i in range(LINAL_LABS_COUNT)]
+            angem_deadlines = [(datetime.strptime('2025-03-14', '%Y-%m-%d') + timedelta(days=5*i)).strftime('%Y-%m-%d') for i in range(ANGEM_LABS_COUNT)]
+            await connection.execute(sql_query, linal_deadlines, angem_deadlines, linal_deadlines, angem_deadlines)
+
+            substr_vars = ','.join([f'linal_lab{i}_id' for i in range(1, 16)])
+            substr_vars_n = ','.join(['1' for _ in range(1, 16)])
+            sql_query = f'''
+                INSERT INTO students (user_id, group_id, linal_marks, angem_marks, {substr_vars})
+                VALUES
+                    (2, 3, $1, $2, {substr_vars_n}),
+                    (3, 2, $3, $4, {substr_vars_n});
+            '''
+            lena_linal_marks = []
+            lena_angem_marks = []
+            misha_linal_marks = []
+            misha_angem_marks = []
+            for i in range(LINAL_LABS_COUNT):
+                r = random.randint(1, 5)
+                if r <= 2:
+                    lena_linal_marks.append({"result": True, "approve_date": (datetime.strptime(linal_deadlines[i], '%Y-%m-%d') + timedelta(days=random.randint(0, 3))).strftime('%Y-%m-%d')})
+                elif r <= 4:
+                    lena_linal_marks.append({"result": True, "approve_date": (datetime.strptime(linal_deadlines[i], '%Y-%m-%d') - timedelta(days=random.randint(0, 3))).strftime('%Y-%m-%d')})
+                else:
+                    lena_linal_marks.append({"result": False, "approve_date": None})
+
+                r = random.randint(1, 5)
+                if r <= 2:
+                    misha_linal_marks.append({"result": True, "approve_date": (datetime.strptime(linal_deadlines[i], '%Y-%m-%d') + timedelta(days=random.randint(0, 3))).strftime('%Y-%m-%d')})
+                elif r <= 4:
+                    misha_linal_marks.append({"result": True, "approve_date": (datetime.strptime(linal_deadlines[i], '%Y-%m-%d') - timedelta(days=random.randint(0, 3))).strftime('%Y-%m-%d')})
+                else:
+                    misha_linal_marks.append({"result": False, "approve_date": None})
+            for i in range(ANGEM_LABS_COUNT):
+                r = random.randint(1, 5)
+                if r <= 2:
+                    lena_angem_marks.append({"result": True, "approve_date": (datetime.strptime(linal_deadlines[i], '%Y-%m-%d') + timedelta(days=random.randint(0, 3))).strftime('%Y-%m-%d')})
+                elif r <= 4:
+                    lena_angem_marks.append({"result": True, "approve_date": (datetime.strptime(linal_deadlines[i], '%Y-%m-%d') - timedelta(days=random.randint(0, 3))).strftime('%Y-%m-%d')})
+                else:
+                    lena_angem_marks.append({"result": False, "approve_date": None})
+
+                r = random.randint(1, 5)
+                if r <= 2:
+                    misha_angem_marks.append({"result": True, "approve_date": (datetime.strptime(linal_deadlines[i], '%Y-%m-%d') + timedelta(days=random.randint(0, 3))).strftime('%Y-%m-%d')})
+                elif r <= 4:
+                    misha_angem_marks.append({"result": True, "approve_date": (datetime.strptime(linal_deadlines[i], '%Y-%m-%d') - timedelta(days=random.randint(0, 3))).strftime('%Y-%m-%d')})
+                else:
+                    misha_angem_marks.append({"result": False, "approve_date": None})
+
+            await connection.execute(sql_query, json.dumps(lena_linal_marks), json.dumps(lena_angem_marks), json.dumps(misha_linal_marks), json.dumps(misha_angem_marks))
 
         async with self._pool.acquire() as conn:
             async with conn.transaction():
@@ -815,12 +891,12 @@ class Database:
     async def add_group(self, group: StudentGroup) -> None:
         async with self._pool.acquire() as conn:
             sql_query = """ 
-                INSERT INTO groups (name, teacher_id)
+                INSERT INTO groups (name, teacher_id, linal_deadlines, angem_deadlines)
                 VALUES
-                    ($1, $2)
+                    ($1, $2, $3, $4)
                 RETURNING id;
             """
-            group_row = await conn.fetchrow(sql_query, group.name, group.teacher_id)
+            group_row = await conn.fetchrow(sql_query, group.name, group.teacher_id, [None] * LINAL_LABS_COUNT, [None] * ANGEM_LABS_COUNT)
             return group_row.get('id')
 
     async def get_all_groups(self) -> list[StudentGroup]:

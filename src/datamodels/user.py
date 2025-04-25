@@ -31,6 +31,8 @@ class StudentGroup(BaseModel):
     id: Optional[int] = None
     name: str
     teacher_id: Optional[int] = None
+    linal_deadlines: Optional[list[str]]
+    angem_deadlines: Optional[list[str]]
 
 
 class UserRole(BaseModel):
