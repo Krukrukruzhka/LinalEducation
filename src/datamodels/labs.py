@@ -164,3 +164,14 @@ class LinalLab15Request(BaseModel):
 
 class LinalLab15Response(BaseModel):
     pass
+
+
+class AngemLab8Request(BaseModel):
+    a: list[int]
+    b: list[int]
+    c: list[int]
+
+
+class AngemLab8Response(BaseModel):
+    step_1: None
+    step_2: None

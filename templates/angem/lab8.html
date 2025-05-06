@@ -1,0 +1,228 @@
+{% extends "basic.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{url_for('static', path='css/math_utils.css')}}">
+<link rel="stylesheet" href="{{url_for('static', path='css/matrix.css')}}">
+<link rel="stylesheet" href="{{url_for('static', path='css/content_blocks.css')}}">
+<link rel="stylesheet" href="{{url_for('static', path='css/angem/lab8.css')}}">
+
+<script type="module" src="{{url_for('static', path='js/angem/lab8.js')}}"></script>
+{% endblock %}
+
+{% block main_content %}
+<div class="lab_step_block">
+    <div class="lab_step_content">
+        <div class="text_block">
+            <h2>Задача 8</h2>
+            <p>
+                В прямоугольной системе координат <i>Oxyz</i> заданы координаты вершин <i>A({{variant['a'][0]}}, {{variant['a'][1]}}, {{variant['a'][2]}})</i>,
+                <i>B({{variant['b'][0]}},   {{variant['b'][1]}}, {{variant['b'][2]}})</i>,   <i>C({{variant['c'][0]}}, {{variant['c'][1]}}, {{variant['c'][2]}})</i>
+                треугольной пирамиды <i>OABC</i>. Требуется:</p>
+            <p>
+                1) составить общее уравнение плоскости грани ABC <br>
+                2) найти расстояние h от вершины O до плоскости грани ABC <br>
+                3) составить каноническое уравнение прямой BC <br>
+                4) найти расстояние от вершины A до прямой BC (т.е. высоту AH треугольника ABC) <br>
+                5) составить общее и каноническое уравнения прямой, содержащей высоту AH треугольника ABC <br>
+                6) найти проекцию O1 вершины O на плоскость основания ABC <br>
+                7) составить каноническое уравнение прямой, проходящей через вершину O и точку M пересечения медиан треугольника ABC
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="lab_step_block">
+    <div class="lab_step_content">
+        <div class="text_block">
+            <h2>Шаг 1</h2>
+        </div>
+    </div>
+    <div class="lab_step_content">
+        <div class="text_block">
+            <p>
+                Составляем уравнение плоскости, проходящей через три точки A, B, C:
+            </p>
+        </div>
+    </div>
+    <div class="lab_step_content">
+        <div class="matrix_with_name">
+            <span class="matrix_name">det </span>
+            <div class="matrix editable_matrix" id="step_1_determinant">
+                <div class="matrix_row">
+                        <input type="number" class="matrix_element"/>
+                        <input type="number" class="matrix_element"/>
+                        <input type="number" class="matrix_element"/>
+                </div>
+                {% for row in range(2) %}
+                <div class="matrix_row">
+                    {% for column in range(3) %}
+                        <input type="number" class="matrix_element" />
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            <span class="matrix_name"> = 0</span>
+        </div>
+    </div>
+    <br>
+    <div class="lab_step_content">
+        <div class="text_block">
+            <p>
+                Общее уравнение плоскости грани ABC:
+            </p>
+        </div>
+    </div>
+    <div class="lab_step_content">
+        <div class="matrix_with_name">
+            <input type="number" class="angem_lab8_step1_input"/> <span><b> x</b> + </span>
+            <input type="number" class="angem_lab8_step1_input"/> <span><b> y</b> + </span>
+            <input type="number" class="angem_lab8_step1_input"/> <span><b> z</b> + </span>
+            <input type="number" class="angem_lab8_step1_input"/> <span> = 0</span>
+        </div>
+    </div>
+</div>
+
+
+<div class="lab_step_block">
+    <div class="lab_step_content">
+        <div class="text_block">
+            <h2>Шаг 2</h2>
+        </div>
+    </div>
+</div>
+
+
+<div class="lab_step_block">
+    <div class="lab_step_content">
+        <div class="text_block">
+            <h2>Шаг 6</h2>
+        </div>
+    </div>
+    <div class="lab_step_content">
+        <div class="text_block">
+            <p>
+                Чтобы найти проекцию <i>O<sub>1</sub></i> вершины <i>O</i> на плоскость основания <i>ABC</i> нужно составить параметрическое уравнение прямой <i>O<sub>1</sub></i>,
+                которая проходит через начало координат и перпендикулярна плоскости <i>ABC</i>.
+                Нормаль к этой плоскости является направляющим вектором для прямой OO1 и имеет координаты (<input type="number" class="angem_lab8_step7_input"/> <input type="number" class="angem_lab8_step7_input"/> <input type="number" class="angem_lab8_step7_input"/>),
+                поэтому ее уравнение имеет вид:
+                <i>x</i> = <input type="number" class="angem_lab8_step7_input"/><i>t</i>,
+                <i>y</i> = <input type="number" class="angem_lab8_step7_input"/><i>t</i>,
+                <i>z</i> = <input type="number" class="angem_lab8_step7_input"/><i>t</i>
+            </p>
+        </div>
+    </div>
+    <div class="lab_step_content">
+        <div class="text_block">
+            <p>
+                Подставляя эти выражения в уравнение плоскости <i>ABC</i>, определяем значение параметра <i>t</i> для точки <i>O<sub>1</sub></i> пересечения прямой и плоскости: <br>
+                <input type="number" class="angem_lab8_step7_input"/><i>t</i> = <input type="number" class="angem_lab8_step7_input"/> <br>
+                <br>
+                Тогда: <br>
+                <i>t</i> = <span class="frac">
+                    <span><input type="number" class="angem_lab8_step7_input"/></span>
+                    <span class="symbol">/</span>
+                    <span class="bottom"><input type="number" class="angem_lab8_step7_input"/></span>
+                </span>
+            </p>
+        </div>
+    </div>
+</div>
+
+
+<div class="lab_step_block">
+    <div class="lab_step_content">
+        <div class="text_block">
+            <h2>Шаг 7</h2>
+        </div>
+    </div>
+    <div class="lab_step_content">
+        <div class="text_block">
+            <p>
+                Находим координаты точки M, согласно правилу M(
+                <span class="frac">
+                    <span>x<sub>A</sub> + x<sub>B</sub> + x<sub>C</sub></span>
+                    <span class="symbol">/</span>
+                    <span class="bottom">3</span>
+                </span>;
+                <span class="frac">
+                    <span>y<sub>A</sub> + y<sub>B</sub> + y<sub>C</sub></span>
+                    <span class="symbol">/</span>
+                    <span class="bottom">3</span>
+                </span>;
+                <span class="frac">
+                    <span>z<sub>A</sub> + z<sub>B</sub> + z<sub>C</sub></span>
+                    <span class="symbol">/</span>
+                    <span class="bottom">3</span>
+                </span>
+                ):
+            </p>
+        </div>
+    </div>
+    <div class="lab_step_content">
+        <div class="text_block">
+            <p>
+                M(
+                <span class="frac">
+                    <span><input type="number" class="angem_lab8_step7_input"/> + <input type="number" class="angem_lab8_step7_input"/> + <input type="number" class="angem_lab8_step7_input"/></span>
+                    <span class="symbol">/</span>
+                    <span class="bottom">3</span>
+                </span>;
+                <span class="frac">
+                    <span><input type="number" class="angem_lab8_step7_input"/> + <input type="number" class="angem_lab8_step7_input"/> + <input type="number" class="angem_lab8_step7_input"/></span>
+                    <span class="symbol">/</span>
+                    <span class="bottom">3</span>
+                </span>;
+                <span class="frac">
+                    <span><input type="number" class="angem_lab8_step7_input"/> + <input type="number" class="angem_lab8_step7_input"/> + <input type="number" class="angem_lab8_step7_input"/></span>
+                    <span class="symbol">/</span>
+                    <span class="bottom">3</span>
+                </span>
+                )
+            </p>
+        </div>
+    </div>
+
+    <div class="lab_step_content">
+        <div class="text_block">
+            <p>
+                M(<span><input type="number" class="angem_lab8_step7_input"/>; <input type="number" class="angem_lab8_step7_input"/>; <input type="number" class="angem_lab8_step7_input"/></span>)
+            </p>
+        </div>
+    </div>
+
+    <div class="lab_step_content">
+        <div class="text_block">
+            <p>
+                Записываем каноническое уравнение прямой OM: <br>
+                <span class="frac">
+                    <span>x - <input type="number" class="angem_lab8_step7_input"/></span>
+                    <span class="symbol">/</span>
+                    <span class="bottom"><input type="number" class="angem_lab8_step7_input"/></span>
+                </span> = <span class="frac">
+                    <span>y - <input type="number" class="angem_lab8_step7_input"/></span>
+                    <span class="symbol">/</span>
+                    <span class="bottom"><input type="number" class="angem_lab8_step7_input"/></span>
+                </span> = <span class="frac">
+                    <span>z - <input type="number" class="angem_lab8_step7_input"/></span>
+                    <span class="symbol">/</span>
+                    <span class="bottom"><input type="number" class="angem_lab8_step7_input"/></span>
+                </span>
+            </p>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="check_block">
+    <button type="button" class="check_button" id="check_button">Проверить</button>
+    <div class="verdict_block" id="user_verdict_block" hidden="hidden">
+        <img class="verdict_image">
+        <p class="verdict_text"></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block end_scripts %}
+<div id="is_solved">{{ is_solved | lower }}</div>
+{% endblock %}

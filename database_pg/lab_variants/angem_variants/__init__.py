@@ -1,0 +1,1 @@
+from database_pg.lab_variants.angem_variants.lab8 import ANGEM_LAB8_VARIANTS
